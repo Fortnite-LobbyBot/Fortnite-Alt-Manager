@@ -42,7 +42,7 @@ export class AltManager {
 	setStatus(alt: Alt, status: AltStatus) {
 		this.removeAlt(alt.userId);
 
-		this.setStatus(alt, status);
+		this.addAlt({ ...alt, status });
 	}
 
 	removeAlt(userId: string) {
