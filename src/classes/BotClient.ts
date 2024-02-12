@@ -1,9 +1,12 @@
+import { ClientUtil } from './ClientUtil';
 import { Client, REST, Routes } from 'discord.js';
 import { CommandManager } from '../managers/commandManager';
 import { EventHandler } from '../handlers/eventHandler';
 import { EventManager } from '../managers/eventManager';
 
 export class BotClient extends Client {
+	util = new ClientUtil();
+
 	eventHandler = new EventHandler(this);
 
 	managers = {
