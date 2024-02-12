@@ -10,13 +10,14 @@ export interface Alt {
 	userId: string;
 	name: string;
 	status: AltStatus;
+	timestamp: number;
 }
 
 export enum AltStatus {
-	Online = 'online',
-	Busy = 'busy',
-	Idle = 'idle',
-	Offline = 'offline',
+	Online = 0,
+	Busy = 1,
+	Idle = 2,
+	Offline = 3,
 }
 
 export class BotClient extends Client {

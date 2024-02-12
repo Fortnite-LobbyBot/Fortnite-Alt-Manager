@@ -48,7 +48,7 @@ export default new Command({
 
 		const subcommand = interaction.options.getSubcommand(true);
 
-		const userAlt = client.alts.find(
+		const userAlt = client.alts.findLast(
 			(a) => a.userId === interaction.user.id
 		);
 
@@ -64,6 +64,12 @@ export default new Command({
 
 			client.managers.altManager.setStatus(alt, status);
 
+			return postAltStatus(status, alt);
+		}
+
+		async function postAltStatus(status: AltStatus, alt = userAlt) {
+			if (!alt) return;
+
 			const { color: embedColor, emoji: embedEmoji } =
 				client.managers.altManager.getStatus(status);
 
@@ -74,12 +80,11 @@ export default new Command({
 						.setDescription(
 							`${embedEmoji} The alt ${client.util.toCode(
 								alt.name
-							)} is now: **${status}**`
+							)} is now: **${AltStatus[status]}**`
 						),
 				],
 			});
 		}
-
 		switch (subcommand) {
 			case 'add-alt': {
 				if (userAlt)
@@ -93,11 +98,12 @@ export default new Command({
 					userId: interaction.user.id,
 					name: interaction.options.getString('name', true),
 					status: AltStatus.Online,
+					timestamp: Date.now(),
 				};
 
 				client.managers.altManager.addAlt(alt);
 
-				await updateAltStatus(AltStatus.Online, alt);
+				await postAltStatus(AltStatus.Online, alt);
 
 				break;
 			}
