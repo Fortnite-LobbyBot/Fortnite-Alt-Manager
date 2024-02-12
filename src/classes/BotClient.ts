@@ -14,6 +14,8 @@ export class BotClient extends Client {
 		eventManager: new EventManager(),
 	};
 
+	alts = new Map<string, Map<string, string>>();
+
 	async setup() {
 		this.eventHandler.start();
 

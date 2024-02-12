@@ -2,20 +2,18 @@ import { SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../classes/Command';
 
 export default new Command({
-	id: 'alts',
+	id: 'online',
 	config: () => ({
 		slash: new SlashCommandBuilder()
-			.setName('alts')
-			.setDescription('View the available alts.'),
+			.setName('online')
+			.setDescription('Set the alt to online.'),
 	}),
-	run: async ({ client, interaction }) => {
+	run: async ({ interaction }) => {
 		if (!interaction.inCachedGuild())
 			return interaction.reply({
 				content: 'Invalid guild.',
 				ephemeral: true,
 			});
-
-		console.log(client.alts);
 
 		return interaction.reply('Work in progress');
 	},
