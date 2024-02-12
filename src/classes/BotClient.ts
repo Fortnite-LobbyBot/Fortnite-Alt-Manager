@@ -3,6 +3,21 @@ import { Client, REST, Routes } from 'discord.js';
 import { CommandManager } from '../managers/commandManager';
 import { EventHandler } from '../handlers/eventHandler';
 import { EventManager } from '../managers/eventManager';
+import { AltManager } from '../managers/altManager';
+
+export interface Alt {
+	guildId?: string;
+	userId: string;
+	name: string;
+	status: AltStatus;
+}
+
+export enum AltStatus {
+	Online = 'online',
+	Busy = 'busy',
+	Idle = 'idle',
+	Offline = 'offline',
+}
 
 export class BotClient extends Client {
 	util = new ClientUtil();
@@ -10,11 +25,12 @@ export class BotClient extends Client {
 	eventHandler = new EventHandler(this);
 
 	managers = {
+		altManager: new AltManager(this),
 		commandManager: new CommandManager(),
 		eventManager: new EventManager(),
 	};
 
-	alts = new Map<string, Map<string, string>>();
+	alts: Alt[] = [];
 
 	async setup() {
 		this.eventHandler.start();
