@@ -1,0 +1,20 @@
+{
+  "name": "alt-manager",
+  "version": "1.0.0",
+  "description": "BL Alt Manager",
+  "scripts": {
+    "start": "NODE_ENV=production bun src/index.ts",
+    "dev": "NODE_ENV=development bun src/index.ts"
+  },
+  "main": "index.js",
+  "author": "tnfAngel",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.0.5"
+  }
+}

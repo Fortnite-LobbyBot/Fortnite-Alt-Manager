@@ -1,0 +1,11 @@
+{
+	"tabWidth": 4,
+	"useTabs": true,
+	"semi": true,
+	"singleQuote": true,
+	"bracketSpacing": true,
+	"quoteProps": "consistent",
+	"parser": "typescript",
+	"insertPragma": false,
+	"arrowParens": "always"
+}
