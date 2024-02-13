@@ -6,8 +6,12 @@ export class AltManager {
 		this.client = client;
 	}
 
-	addAlt(alt: Alt) {
-		this.client.alts.push(alt);
+	addAlt(guildId: string, alt: Alt) {
+		const guildAlts = this.client.alts.get(guildId) ?? [];
+
+		guildAlts.push(alt);
+
+		this.client.alts.set(guildId, guildAlts);
 	}
 
 	getStatus(status: AltStatus) {
@@ -39,13 +43,18 @@ export class AltManager {
 		return { color, emoji };
 	}
 
-	setStatus(alt: Alt, status: AltStatus) {
-		this.removeAlt(alt.userId);
+	setStatus(guildId: string, alt: Alt, status: AltStatus) {
+		this.removeAlt(guildId, alt.userId);
 
-		this.addAlt({ ...alt, status, timestamp: Date.now() });
+		this.addAlt(guildId, { ...alt, status, timestamp: Date.now() });
 	}
 
-	removeAlt(userId: string) {
-		this.client.alts = this.client.alts.filter((a) => a.userId !== userId);
+	removeAlt(guildId: string, userId: string) {
+		const guildAlts = this.client.alts.get(guildId) ?? [];
+
+		this.client.alts.set(
+			guildId,
+			guildAlts.filter((a) => a.userId !== userId)
+		);
 	}
 }

@@ -24,41 +24,51 @@ export default new Command({
 				ephemeral: true,
 			});
 
+		const currentGuildId = interaction.guildId;
+
 		const isGlobal =
 			interaction.options.getBoolean('global', false) ?? true;
 
-		const alts = client.alts
-			.slice(-25)
-			.filter(
-				(a) =>
-					(!isGlobal ? a.guildId === interaction.guildId : true) &&
-					(!a.private || a.guildId === interaction.guildId)
-			)
-			.toSorted((a, b) => b.timestamp - a.timestamp)
-			.toSorted((a, b) => a.status - b.status);
+		const currentGuildAlts = client.alts.get(currentGuildId) ?? [];
 
-		const fields = Object.entries(
-			Object.groupBy(
-				alts,
-				({ guildId }) =>
-					client.guilds.cache.get(guildId ?? '0')?.name ?? 'Unknown'
-			)
+		console.log([...client.alts.entries()]);
+
+		const fields = (
+			isGlobal
+				? [
+						...[...client.alts.entries()].filter(
+							([gId]) => gId !== currentGuildId
+						),
+						[currentGuildId, currentGuildAlts] as const,
+				  ]
+				: [[currentGuildId, currentGuildAlts] as const]
 		)
+			.slice(-25)
 			.map(
-				([serverName, alts]) =>
-					alts?.map((alt, i) => ({
-						name:
-							(i === 0 ? `${serverName}\n\n` : '') +
-							`${
-								client.managers.altManager.getStatus(alt.status)
-									.emoji
-							} ${alt.name} - ${AltStatus[alt.status]}${
-								alt.private ? ' <:P:1206756287648497714>' : ''
-							}`,
-						value: `${client.util.toRelativeTimestamp(
-							alt.timestamp
-						)} - by <@${alt.userId}>`,
-					})) ?? []
+				([guildId, alts]) =>
+					alts
+						.filter((a) => !a.private || guildId === currentGuildId)
+						.map((alt, i) => ({
+							name:
+								(i === 0
+									? `${
+											client.guilds.cache.get(guildId) ??
+											'Unknown'
+									  }\n\n`
+									: '') +
+								`${
+									client.managers.altManager.getStatus(
+										alt.status
+									).emoji
+								} ${alt.name} - ${AltStatus[alt.status]}${
+									alt.private
+										? ' <:P:1206756287648497714>'
+										: ''
+								}`,
+							value: `${client.util.toRelativeTimestamp(
+								alt.timestamp
+							)} - by <@${alt.userId}>`,
+						})) ?? []
 			)
 			.flat();
 

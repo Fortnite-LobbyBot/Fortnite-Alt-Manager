@@ -6,7 +6,6 @@ import { EventManager } from '../managers/eventManager';
 import { AltManager } from '../managers/altManager';
 
 export interface Alt {
-	guildId?: string;
 	userId: string;
 	name: string;
 	status: AltStatus;
@@ -32,7 +31,7 @@ export class BotClient extends Client {
 		eventManager: new EventManager(),
 	};
 
-	alts: Alt[] = [];
+	alts = new Map<string, Alt[]>();
 
 	async setup() {
 		this.eventHandler.start();

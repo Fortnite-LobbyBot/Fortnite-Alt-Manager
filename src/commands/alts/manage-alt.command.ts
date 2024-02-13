@@ -57,9 +57,11 @@ export default new Command({
 
 		const subcommand = interaction.options.getSubcommand(true);
 
-		const userAlt = client.alts.findLast(
-			(a) => a.userId === interaction.user.id
-		);
+		const currentGuildId = interaction.guildId;
+
+		const userAlt = client.alts
+			.get(currentGuildId)
+			?.findLast((a) => a.userId === interaction.user.id);
 
 		if (subcommand !== 'add-alt' && !userAlt)
 			return interaction.reply({
@@ -71,7 +73,7 @@ export default new Command({
 		async function updateAltStatus(status: AltStatus, alt = userAlt) {
 			if (!alt) return;
 
-			client.managers.altManager.setStatus(alt, status);
+			client.managers.altManager.setStatus(currentGuildId, alt, status);
 
 			return postAltStatus(status, alt);
 		}
@@ -113,7 +115,7 @@ export default new Command({
 						undefined,
 				};
 
-				client.managers.altManager.addAlt(alt);
+				client.managers.altManager.addAlt(currentGuildId, alt);
 
 				await postAltStatus(AltStatus.Online, alt);
 
@@ -140,7 +142,10 @@ export default new Command({
 				break;
 			}
 			case 'remove-alt': {
-				client.managers.altManager.removeAlt(interaction.user.id);
+				client.managers.altManager.removeAlt(
+					currentGuildId,
+					interaction.user.id
+				);
 
 				return interaction.reply({
 					content: 'Alt removed successfully.',
