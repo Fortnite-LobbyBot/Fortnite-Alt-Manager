@@ -7,7 +7,15 @@ export default new Command({
 	config: () => ({
 		slash: new SlashCommandBuilder()
 			.setName('alts')
-			.setDescription('View the available alts.'),
+			.setDescription('View the available alts.')
+			.addBooleanOption((o) =>
+				o
+					.setName('global')
+					.setDescription(
+						'Display global alts, not only the ones on this server'
+					)
+					.setRequired(false)
+			),
 	}),
 	run: async ({ client, interaction }) => {
 		if (!interaction.inCachedGuild())
@@ -16,32 +24,56 @@ export default new Command({
 				ephemeral: true,
 			});
 
-		const alts = client.alts
-			.slice(-25)
-			.toSorted((a, b) => b.timestamp - a.timestamp)
-			.toSorted((a, b) => a.status - b.status);
+		const currentGuildId = interaction.guildId;
 
-		const fields = Object.entries(
-			Object.groupBy(
-				alts,
-				({ guildId }) =>
-					client.guilds.cache.get(guildId ?? '0')?.name ?? 'Unknown'
-			)
-		)
-			.map(
-				([serverName, alts]) =>
-					alts?.map((alt, i) => ({
+		const isGlobal =
+			interaction.options.getBoolean('global', false) ?? true;
+
+		const currentGuildAlts = client.alts.get(currentGuildId) ?? [];
+
+		const slicedFields = (
+			isGlobal
+				? [
+						...[...client.alts.entries()].filter(
+							([gId]) => gId !== currentGuildId
+						),
+						[currentGuildId, currentGuildAlts] as const,
+				  ]
+				: [[currentGuildId, currentGuildAlts] as const]
+		).slice(-25);
+
+		const fields = slicedFields
+			.map(([guildId, alts], i) => {
+				const finalAlts = alts.filter(
+					(a) => !a.private || guildId === currentGuildId
+				);
+
+				return (
+					finalAlts.map((alt, j) => ({
 						name:
-							(i === 0 ? `${serverName}\n\n` : '') +
+							(j === 0
+								? `\n${
+										client.guilds.cache.get(guildId) ??
+										'Unknown'
+								  }\n\n`
+								: '') +
 							`${
 								client.managers.altManager.getStatus(alt.status)
 									.emoji
-							} ${alt.name} - ${AltStatus[alt.status]}`,
+							} ${alt.name} - ${AltStatus[alt.status]}${
+								alt.private ? ' <:P:1206756287648497714>' : ''
+							}`,
 						value: `${client.util.toRelativeTimestamp(
 							alt.timestamp
-						)} - by <@${alt.userId}>`,
+						)} - by <@${alt.userId}>${
+							j === finalAlts.length - 1 &&
+							i !== slicedFields.length - 1
+								? '\n<:b:1206770326453620736>'
+								: ''
+						}`,
 					})) ?? []
-			)
+				);
+			})
 			.flat();
 
 		return interaction.reply({
