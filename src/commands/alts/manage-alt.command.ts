@@ -19,6 +19,7 @@ export default new Command({
 								'The Fortnite display name of your alt'
 							)
 							.setRequired(true)
+							.setMaxLength(64)
 					)
 			)
 			.addSubcommand((c) =>

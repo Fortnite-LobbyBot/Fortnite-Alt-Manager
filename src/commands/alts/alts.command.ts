@@ -36,10 +36,10 @@ export default new Command({
 							`${
 								client.managers.altManager.getStatus(alt.status)
 									.emoji
-							} ${alt.name}`,
-						value: `${
-							AltStatus[alt.status]
-						} - ${client.util.toRelativeTimestamp(alt.timestamp)}`,
+							} ${alt.name} - ${AltStatus[alt.status]}`,
+						value: `${client.util.toRelativeTimestamp(
+							alt.timestamp
+						)} - by <@${alt.userId}>`,
 					})) ?? []
 			)
 			.flat();

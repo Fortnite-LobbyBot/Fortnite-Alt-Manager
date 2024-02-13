@@ -4,17 +4,17 @@ export class ClientUtil {
 	}
 
 	toCodeBlock(code: string, text: string): string {
-		return `\`\`\`${code.replace(/```/g, '')}\n${text.replace(
-			/```/g,
-			''
+		return `\`\`\`${code.replace(/```/g, '')}\n${text.replaceAll(
+			'```',
+			'\\`\\`\\`'
 		)}\n\`\`\``;
 	}
 
 	toCode(text: string): string {
 		return `\`${text
 			.toString()
-			.replace(/`/g, '')
-			.replace(/[\n\r]/g, '')}\``;
+			.replaceAll('`', '\\`')
+			.replaceAll(/[\n\r]/g, '')}\``;
 	}
 
 	toRelativeTimestamp(timestamp: number): string {
