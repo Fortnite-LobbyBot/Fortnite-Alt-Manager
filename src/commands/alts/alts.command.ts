@@ -31,9 +31,7 @@ export default new Command({
 
 		const currentGuildAlts = client.alts.get(currentGuildId) ?? [];
 
-		console.log([...client.alts.entries()]);
-
-		const fields = (
+		const slicedFields = (
 			isGlobal
 				? [
 						...[...client.alts.entries()].filter(
@@ -42,34 +40,40 @@ export default new Command({
 						[currentGuildId, currentGuildAlts] as const,
 				  ]
 				: [[currentGuildId, currentGuildAlts] as const]
-		)
-			.slice(-25)
-			.map(
-				([guildId, alts]) =>
-					alts
-						.filter((a) => !a.private || guildId === currentGuildId)
-						.map((alt, i) => ({
-							name:
-								(i === 0
-									? `${
-											client.guilds.cache.get(guildId) ??
-											'Unknown'
-									  }\n\n`
-									: '') +
-								`${
-									client.managers.altManager.getStatus(
-										alt.status
-									).emoji
-								} ${alt.name} - ${AltStatus[alt.status]}${
-									alt.private
-										? ' <:P:1206756287648497714>'
-										: ''
-								}`,
-							value: `${client.util.toRelativeTimestamp(
-								alt.timestamp
-							)} - by <@${alt.userId}>`,
-						})) ?? []
-			)
+		).slice(-25);
+
+		const fields = slicedFields
+			.map(([guildId, alts], i) => {
+				const finalAlts = alts.filter(
+					(a) => !a.private || guildId === currentGuildId
+				);
+
+				return (
+					finalAlts.map((alt, j) => ({
+						name:
+							(j === 0
+								? `\n${
+										client.guilds.cache.get(guildId) ??
+										'Unknown'
+								  }\n\n`
+								: '') +
+							`${
+								client.managers.altManager.getStatus(alt.status)
+									.emoji
+							} ${alt.name} - ${AltStatus[alt.status]}${
+								alt.private ? ' <:P:1206756287648497714>' : ''
+							}`,
+						value: `${client.util.toRelativeTimestamp(
+							alt.timestamp
+						)} - by <@${alt.userId}>${
+							j === finalAlts.length - 1 &&
+							i !== slicedFields.length - 1
+								? '\n<:b:1206770326453620736>'
+								: ''
+						}`,
+					})) ?? []
+				);
+			})
 			.flat();
 
 		return interaction.reply({
