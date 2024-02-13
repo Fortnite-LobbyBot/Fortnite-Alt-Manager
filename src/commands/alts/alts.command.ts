@@ -7,7 +7,15 @@ export default new Command({
 	config: () => ({
 		slash: new SlashCommandBuilder()
 			.setName('alts')
-			.setDescription('View the available alts.'),
+			.setDescription('View the available alts.')
+			.addBooleanOption((o) =>
+				o
+					.setName('global')
+					.setDescription(
+						'Display global alts, not only the ones on this server'
+					)
+					.setRequired(false)
+			),
 	}),
 	run: async ({ client, interaction }) => {
 		if (!interaction.inCachedGuild())
@@ -16,8 +24,16 @@ export default new Command({
 				ephemeral: true,
 			});
 
+		const isGlobal =
+			interaction.options.getBoolean('global', false) ?? true;
+
 		const alts = client.alts
 			.slice(-25)
+			.filter(
+				(a) =>
+					(!isGlobal ? a.guildId === interaction.guildId : true) &&
+					(!a.private || a.guildId === interaction.guildId)
+			)
 			.toSorted((a, b) => b.timestamp - a.timestamp)
 			.toSorted((a, b) => a.status - b.status);
 
@@ -36,7 +52,9 @@ export default new Command({
 							`${
 								client.managers.altManager.getStatus(alt.status)
 									.emoji
-							} ${alt.name} - ${AltStatus[alt.status]}`,
+							} ${alt.name} - ${AltStatus[alt.status]}${
+								alt.private ? ' <:P:1206756287648497714>' : ''
+							}`,
 						value: `${client.util.toRelativeTimestamp(
 							alt.timestamp
 						)} - by <@${alt.userId}>`,

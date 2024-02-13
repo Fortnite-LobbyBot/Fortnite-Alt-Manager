@@ -11,6 +11,7 @@ export interface Alt {
 	name: string;
 	status: AltStatus;
 	timestamp: number;
+	private?: boolean;
 }
 
 export enum AltStatus {

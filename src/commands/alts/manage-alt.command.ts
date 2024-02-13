@@ -21,6 +21,14 @@ export default new Command({
 							.setRequired(true)
 							.setMaxLength(64)
 					)
+					.addBooleanOption((o) =>
+						o
+							.setName('private')
+							.setDescription(
+								'Should the alt be displayed in other Discord servers?'
+							)
+							.setRequired(false)
+					)
 			)
 			.addSubcommand((c) =>
 				c.setName('set-online').setDescription('Set your alt as online')
@@ -100,6 +108,9 @@ export default new Command({
 					name: interaction.options.getString('name', true),
 					status: AltStatus.Online,
 					timestamp: Date.now(),
+					private:
+						interaction.options.getBoolean('private', false) ??
+						undefined,
 				};
 
 				client.managers.altManager.addAlt(alt);
