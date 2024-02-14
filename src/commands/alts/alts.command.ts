@@ -70,6 +70,7 @@ export default new Command({
 				chunkSize,
 				true
 			);
+
 			const pagesBuilder = new PaginationBuilder<Alt[]>()
 				.addPages(chunkedAlts)
 				.setOptions({ infinitePages: true });
