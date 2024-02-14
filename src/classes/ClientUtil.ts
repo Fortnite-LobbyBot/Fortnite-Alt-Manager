@@ -32,11 +32,13 @@ export class ClientUtil {
 	}
 
 	reverseMap<T, O>(arr: T[], cb: (v: T, i: number, ri: number) => O) {
-		return arr.map((_, i, cArr) => {
-			const ri = cArr.length - i - 1;
+		return (
+			arr?.map((_, i, cArr) => {
+				const ri = cArr.length - i - 1;
 
-			return cb(cArr[ri], i, ri);
-		});
+				return cb(cArr[ri], i, ri);
+			}) ?? []
+		);
 	}
 
 	chunkArray<ArrayType>(
