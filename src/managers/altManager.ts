@@ -1,4 +1,5 @@
 import { Alt, AltStatus, BotClient } from '../classes/BotClient';
+import { Emojis } from '../constants';
 
 export class AltManager {
 	client: BotClient;
@@ -11,7 +12,7 @@ export class AltManager {
 
 		guildAlts.push(alt);
 
-		this.client.alts.set(guildId, guildAlts);
+		guildAlts.sort((a, b) => b.status - a.status);
 	}
 
 	getStatus(status: AltStatus) {
@@ -21,22 +22,22 @@ export class AltManager {
 		switch (status) {
 			case AltStatus.Online: {
 				color = 0x43b581;
-				emoji = '<:online:1206694802905763870>';
+				emoji = Emojis.Online;
 				break;
 			}
 			case AltStatus.Busy: {
 				color = 0xf04747;
-				emoji = '<:busy:1206694805975990294>';
+				emoji = Emojis.Busy;
 				break;
 			}
 			case AltStatus.Idle: {
 				color = 0xfaa61a;
-				emoji = '<:idle:1206694804537479298>';
+				emoji = Emojis.Idle;
 				break;
 			}
 			case AltStatus.Offline: {
 				color = 0x747f8d;
-				emoji = '<:offline:1206694807469301821>';
+				emoji = Emojis.Offline;
 				break;
 			}
 		}

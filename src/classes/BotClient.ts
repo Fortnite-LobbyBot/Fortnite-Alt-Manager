@@ -6,6 +6,7 @@ import { EventManager } from '../managers/eventManager';
 import { AltManager } from '../managers/altManager';
 
 export interface Alt {
+	guildId?: string;
 	userId: string;
 	name: string;
 	status: AltStatus;
