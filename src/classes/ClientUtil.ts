@@ -30,4 +30,12 @@ export class ClientUtil {
 			.replace(/&/g, '')
 			.replace(/>/g, '');
 	}
+
+	reverseMap<T, O>(arr: T[], cb: (v: T, i: number, ri: number) => O) {
+		return arr.map((_, i, cArr) => {
+			const ri = cArr.length - i - 1;
+
+			return cb(cArr[ri], i, ri);
+		});
+	}
 }

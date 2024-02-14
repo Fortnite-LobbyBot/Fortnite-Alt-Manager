@@ -1,6 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../classes/Command';
-import { AltStatus } from '../../classes/BotClient';
+import { Alt, AltStatus } from '../../classes/BotClient';
+import { Emojis } from '../../constants';
 
 export default new Command({
 	id: 'alts',
@@ -29,52 +30,47 @@ export default new Command({
 		const isGlobal =
 			interaction.options.getBoolean('global', false) ?? true;
 
-		const currentGuildAlts = client.alts.get(currentGuildId) ?? [];
+		const finalAlts: Alt[] = [];
 
-		const slicedFields = (
-			isGlobal
-				? [
-						...[...client.alts.entries()].filter(
-							([gId]) => gId !== currentGuildId
-						),
-						[currentGuildId, currentGuildAlts] as const,
-				  ]
-				: [[currentGuildId, currentGuildAlts] as const]
-		).slice(-25);
+		const guildAlts: Alt[] = client.alts.get(currentGuildId) ?? [];
 
-		const fields = slicedFields
-			.map(([guildId, alts], i) => {
-				const finalAlts = alts.filter(
-					(a) => !a.private || guildId === currentGuildId
-				);
+		if (isGlobal) {
+			for (const [guildId, alts] of client.alts)
+				if (guildId !== currentGuildId)
+					for (const alt of alts)
+						if (!alt.private) finalAlts.push({ ...alt, guildId });
 
-				return (
-					finalAlts.map((alt, j) => ({
-						name:
-							(j === 0
-								? `\n${
-										client.guilds.cache.get(guildId) ??
-										'Unknown'
-								  }\n\n`
-								: '') +
-							`${
-								client.managers.altManager.getStatus(alt.status)
-									.emoji
-							} ${alt.name} - ${AltStatus[alt.status]}${
-								alt.private ? ' <:P:1206756287648497714>' : ''
-							}`,
-						value: `${client.util.toRelativeTimestamp(
-							alt.timestamp
-						)} - by <@${alt.userId}>${
-							j === finalAlts.length - 1 &&
-							i !== slicedFields.length - 1
-								? '\n<:b:1206770326453620736>'
-								: ''
-						}`,
-					})) ?? []
-				);
-			})
-			.flat();
+			finalAlts.sort((a, b) => a.timestamp - b.timestamp);
+
+			finalAlts.sort((a, b) => b.status - a.status);
+		}
+
+		finalAlts.push(...guildAlts);
+
+		const fields = client.util.reverseMap(finalAlts, (alt, i, ri) => {
+			const gId = alt.guildId ?? currentGuildId;
+
+			const lgId = finalAlts.at(ri + 1)?.guildId ?? currentGuildId;
+
+			const isKnownGid = i !== 0 && lgId === gId;
+
+			return {
+				name: `${
+					isKnownGid || !isGlobal
+						? ''
+						: `${client.guilds.cache.get(gId) ?? 'Unknown'}\n\n`
+				}${client.managers.altManager.getStatus(alt.status).emoji} ${
+					alt.name
+				} - ${AltStatus[alt.status]}${
+					alt.private ? ` ${Emojis.Private}` : ''
+				}`,
+				value: `${client.util.toRelativeTimestamp(
+					alt.timestamp
+				)} - by <@${alt.userId}>${
+					i !== finalAlts.length - 1 ? `\n${Emojis.Blank}` : ''
+				}`,
+			};
+		});
 
 		return interaction.reply({
 			embeds: [
@@ -84,6 +80,11 @@ export default new Command({
 						iconURL: interaction.guild?.iconURL() ?? undefined,
 						name: 'Available alts for bot lobbies',
 					})
+					.setDescription(
+						(!isGlobal &&
+							`${Emojis.Private} _Showing only alts of this server_\n${Emojis.Blank}`) ||
+							null
+					)
 					.setFields(
 						fields.length
 							? fields
