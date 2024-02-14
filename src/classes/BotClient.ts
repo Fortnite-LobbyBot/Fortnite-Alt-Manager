@@ -32,50 +32,7 @@ export class BotClient extends Client {
 		eventManager: new EventManager(),
 	};
 
-	alts = new Map<string, Alt[]>([
-		[
-			'1106879710744543303',
-			[
-				{
-					guildId: '1106879710744543303',
-					userId: '311904215272390657',
-					name: 'ddsfsdfsf',
-					status: 0,
-					timestamp: 1707920300217,
-					private: undefined,
-				},
-				{
-					guildId: '1106879710744543303',
-					userId: '656842811496333322',
-					name: 'pv',
-					status: 0,
-					timestamp: 1707920347783,
-					private: undefined,
-				},
-				{
-					guildId: '1106879710744543303',
-					userId: '656842811496333322',
-					name: 'myvp',
-					status: 0,
-					timestamp: 1707920377783,
-					private: undefined,
-				},
-			],
-		],
-		[
-			'769616598830153768',
-			[
-				{
-					guildId: '769616598830153768',
-					userId: '294882584201003009',
-					name: 'pruv',
-					status: 0,
-					timestamp: 1707920311889,
-					private: undefined,
-				},
-			],
-		],
-	]);
+	alts = new Map<string, Alt[]>();
 
 	async setup() {
 		this.eventHandler.start();
