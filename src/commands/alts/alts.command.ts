@@ -128,13 +128,20 @@ export default new Command({
 								},
 						  ]
 				)
-				.setFooter({
-					text: `Page ${paginationManager.pageIndicator} - ${
-						paginationManager.pagesSize * chunkSize +
-						paginationManager.getPage(paginationManager.pagesSize)
-							.length
-					} Alts registered`,
-				})
+				.setFooter(
+					fields.length
+						? {
+								text: `Page ${
+									paginationManager.pageIndicator
+								} - ${
+									paginationManager.pagesSize * chunkSize +
+									paginationManager.getPage(
+										paginationManager.pagesSize
+									)?.length
+								} Alts registered`,
+						  }
+						: null
+				)
 				.setTimestamp();
 		};
 
