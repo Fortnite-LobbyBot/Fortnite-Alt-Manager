@@ -13,6 +13,8 @@ export class AltManager {
 		guildAlts.push(alt);
 
 		guildAlts.sort((a, b) => b.status - a.status);
+
+		if (guildAlts.length === 1) this.client.alts.set(guildId, guildAlts);
 	}
 
 	getStatus(status: AltStatus) {
