@@ -128,7 +128,7 @@ export default new Command({
 						: [
 								{
 									name: `${Emojis.User} No alts available right now`,
-									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.`,
+									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.\n\n${Emojis.Question} Add your own alt with </manage-alt add-alt:1206685461246910474>.`,
 								},
 						  ]
 				)
