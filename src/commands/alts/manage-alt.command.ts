@@ -11,7 +11,7 @@ export default new Command({
 			.addSubcommand((c) =>
 				c
 					.setName('add-alt')
-					.setDescription('Set your alt as online')
+					.setDescription('Adds your alt to the system')
 					.addStringOption((o) =>
 						o
 							.setName('name')
@@ -45,7 +45,9 @@ export default new Command({
 					.setDescription('Set your alt as offline')
 			)
 			.addSubcommand((c) =>
-				c.setName('remove-alt').setDescription('Removes your alt')
+				c
+					.setName('remove-alt')
+					.setDescription('Removes your alt from the system')
 			),
 	}),
 	run: async ({ client, interaction }) => {
