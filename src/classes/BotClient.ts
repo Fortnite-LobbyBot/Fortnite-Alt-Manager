@@ -35,9 +35,11 @@ export class BotClient extends Client {
 	alts = new Map<string, Alt[]>();
 
 	async setup() {
-		this.eventHandler.start();
-
 		const token = process.env.TOKEN as string;
+
+		super.login(token);
+
+		this.eventHandler.start();
 
 		const rest = new REST().setToken(token);
 
@@ -53,8 +55,6 @@ export class BotClient extends Client {
 		);
 
 		console.log('Posted commands');
-
-		super.login(token);
 	}
 
 	async destroy() {
