@@ -2,23 +2,25 @@ import { CommandConfigContext } from './CommandConfigContext';
 import { CommandRunContext } from './CommandRunContext';
 import { SlashCommandBuilder } from 'discord.js';
 
+type SlashBuilder = Omit<
+	SlashCommandBuilder,
+	| 'addSubcommandGroup'
+	| 'addSubcommand'
+	| 'addBooleanOption'
+	| 'addUserOption'
+	| 'addChannelOption'
+	| 'addRoleOption'
+	| 'addAttachmentOption'
+	| 'addMentionableOption'
+	| 'addStringOption'
+	| 'addIntegerOption'
+	| 'addNumberOption'
+>;
+
 export interface ICommand {
 	id: string;
 	config: (ctx: CommandConfigContext) => {
-		slash: Omit<
-			SlashCommandBuilder,
-			| 'addSubcommandGroup'
-			| 'addSubcommand'
-			| 'addBooleanOption'
-			| 'addUserOption'
-			| 'addChannelOption'
-			| 'addRoleOption'
-			| 'addAttachmentOption'
-			| 'addMentionableOption'
-			| 'addStringOption'
-			| 'addIntegerOption'
-			| 'addNumberOption'
-		>;
+		slash: SlashBuilder;
 		isHidden?: boolean;
 	};
 	run: (ctx: CommandRunContext) => Promise<any>;
@@ -27,20 +29,7 @@ export interface ICommand {
 export class Command implements ICommand {
 	id: string;
 	config: (ctx: CommandConfigContext) => {
-		slash: Omit<
-			SlashCommandBuilder,
-			| 'addSubcommandGroup'
-			| 'addSubcommand'
-			| 'addBooleanOption'
-			| 'addUserOption'
-			| 'addChannelOption'
-			| 'addRoleOption'
-			| 'addAttachmentOption'
-			| 'addMentionableOption'
-			| 'addStringOption'
-			| 'addIntegerOption'
-			| 'addNumberOption'
-		>;
+		slash: SlashBuilder;
 		isHidden?: boolean;
 	};
 	run: (ctx: CommandRunContext) => Promise<any>;

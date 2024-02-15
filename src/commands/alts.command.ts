@@ -202,7 +202,7 @@ export default new Command({
 
 		const collector = message.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 300000,
+			time: 5000, //300000,
 		});
 
 		collector.on('collect', async (i) => {

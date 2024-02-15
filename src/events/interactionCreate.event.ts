@@ -24,10 +24,9 @@ export default new ClientEvent({
 								'ts',
 								error.toString()
 							)}`,
+							ephemeral: true
 						});
 					});
 		}
-
-		return undefined;
 	},
 });

@@ -1,6 +1,6 @@
 import { join } from 'path';
-import type { ClientEvents } from 'discord.js';
 import { readdirSync, existsSync } from 'fs';
+import type { ClientEvents } from 'discord.js';
 import type { IClientEvent } from '../classes/ClientEvent';
 
 export class EventManager {

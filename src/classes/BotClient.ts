@@ -22,17 +22,17 @@ export enum AltStatus {
 }
 
 export class BotClient extends Client {
-	util = new ClientUtil();
+	public util = new ClientUtil();
 
-	eventHandler = new EventHandler(this);
+	public eventHandler = new EventHandler(this);
 
-	managers = {
+	public managers = {
 		altManager: new AltManager(this),
 		commandManager: new CommandManager(),
 		eventManager: new EventManager(),
 	};
 
-	alts = new Map<string, Alt[]>();
+	public alts = new Map<string, Alt[]>();
 
 	async setup() {
 		const token = process.env['TOKEN'];

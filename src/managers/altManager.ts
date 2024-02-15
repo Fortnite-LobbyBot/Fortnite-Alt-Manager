@@ -2,7 +2,7 @@ import { type Alt, AltStatus, BotClient } from '../classes/BotClient';
 import { Emojis } from '../constants';
 
 export class AltManager {
-	client: BotClient;
+	private client: BotClient;
 
 	constructor(client: BotClient) {
 		this.client = client;
