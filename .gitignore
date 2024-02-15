@@ -6,3 +6,4 @@ dist
 dist/*
 .env*
 .DS_Store
+!.env.production.example

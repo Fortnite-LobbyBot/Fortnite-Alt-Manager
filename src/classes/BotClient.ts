@@ -35,25 +35,30 @@ export class BotClient extends Client {
 	alts = new Map<string, Alt[]>();
 
 	async setup() {
-		const token = process.env['TOKEN'] as string;
+		const token = process.env['TOKEN'];
+		const clientId = process.env['CLIENT_ID'];
+
+		if (!token || !clientId)
+			return console.error(
+				`${
+					token ? 'CLIENT_ID' : 'TOKEN'
+				} not specified. Please add it to your .env.${
+					process.env['NODE_ENV'] ?? 'development'
+				} file`
+			);
 
 		super.login(token);
 
 		this.eventHandler.start();
 
+		const commands = this.managers.commandManager.getCommands();
+
 		const rest = new REST().setToken(token);
 
-		await rest.put(
-			Routes.applicationCommands(process.env['CLIENT_ID'] ?? ''),
-			{
-				body: [
-					...this.managers.commandManager
-						.getCommands()
-						.map((cmd) => cmd.getConfig({ client: this }).slash),
-				],
-			}
-		);
+		await rest.put(Routes.applicationCommands(clientId), {
+			body: commands.map((cmd) => cmd.getConfig({ client: this }).slash),
+		});
 
-		console.log('Posted commands');
+		console.log('Posted', commands.length, 'commands');
 	}
 }

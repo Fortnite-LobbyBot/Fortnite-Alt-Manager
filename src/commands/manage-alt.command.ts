@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { Command } from '../../classes/Command';
-import { AltStatus } from '../../classes/BotClient';
+import { Command } from '../classes/Command';
+import { AltStatus } from '../classes/BotClient';
 
 export default new Command({
 	id: 'manage-alt',
@@ -48,6 +48,13 @@ export default new Command({
 				c
 					.setName('remove-alt')
 					.setDescription('Removes your alt from the system')
+			)
+			.addSubcommand((c) =>
+				c
+					.setName('panel')
+					.setDescription(
+						'Shows an interactive panel for managing your alt'
+					)
 			),
 	}),
 	run: async ({ client, interaction }) => {
@@ -99,6 +106,25 @@ export default new Command({
 			});
 		}
 
+		async function postAltPanel(status: AltStatus, alt = userAlt) {
+			if (!alt) return;
+
+			const { color: embedColor, emoji: embedEmoji } =
+				client.managers.altManager.getStatus(status);
+
+			await interaction.reply({
+				embeds: [
+					new EmbedBuilder()
+						.setColor(embedColor)
+						.setDescription(
+							`${embedEmoji} The alt ${client.util.toCode(
+								alt.name
+							)} is now: **${AltStatus[status]}**`
+						),
+				],
+			});
+		}
+
 		switch (subcommand) {
 			case 'add-alt': {
 				if (userAlt)
@@ -124,27 +150,23 @@ export default new Command({
 
 				break;
 			}
-			case 'set-online': {
+			case 'set-online':
 				await updateAltStatus(AltStatus.Online);
 
 				break;
-			}
-			case 'set-busy': {
+			case 'set-busy':
 				await updateAltStatus(AltStatus.Busy);
 
 				break;
-			}
-			case 'set-idle': {
+			case 'set-idle':
 				await updateAltStatus(AltStatus.Idle);
 
 				break;
-			}
-			case 'set-offline': {
+			case 'set-offline':
 				await updateAltStatus(AltStatus.Offline);
 
 				break;
-			}
-			case 'remove-alt': {
+			case 'remove-alt':
 				client.managers.altManager.removeAlt(
 					currentGuildId,
 					interaction.user.id
@@ -154,7 +176,6 @@ export default new Command({
 					content: 'Alt removed successfully.',
 					ephemeral: true,
 				});
-			}
 		}
 	},
 });

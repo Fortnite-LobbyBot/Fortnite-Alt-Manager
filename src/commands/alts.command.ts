@@ -6,9 +6,9 @@ import {
 	EmbedBuilder,
 	SlashCommandBuilder,
 } from 'discord.js';
-import { Command } from '../../classes/Command';
-import { type Alt, AltStatus } from '../../classes/BotClient';
-import { Emojis } from '../../constants';
+import { Command } from '../classes/Command';
+import { type Alt, AltStatus } from '../classes/BotClient';
+import { Emojis } from '../constants';
 import { PaginationBuilder, PaginationManager } from 'pagination-manager';
 
 export default new Command({
