@@ -1,9 +1,8 @@
+import { GatewayIntentBits } from 'discord.js';
 import { BotClient } from './classes/BotClient';
-import { GatewayIntentBits, Partials } from 'discord.js';
 
 const client = new BotClient({
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
-	partials: [Partials.Channel],
+	intents: [GatewayIntentBits.Guilds],
 });
 
 client.setup();
