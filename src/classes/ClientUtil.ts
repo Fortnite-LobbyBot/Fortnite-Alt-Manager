@@ -36,7 +36,7 @@ export class ClientUtil {
 			arr?.map((_, i, cArr) => {
 				const ri = cArr.length - i - 1;
 
-				return cb(cArr[ri], i, ri);
+				return cb(cArr[ri] as T, i, ri);
 			}) ?? []
 		);
 	}

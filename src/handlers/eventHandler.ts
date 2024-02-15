@@ -3,6 +3,7 @@ import { EventContext } from '../classes/EventContext';
 
 export class EventHandler {
 	client: BotClient;
+
 	constructor(client: BotClient) {
 		this.client = client;
 	}

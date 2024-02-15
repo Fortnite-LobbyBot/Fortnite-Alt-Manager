@@ -1,4 +1,4 @@
-import { ClientEvents } from 'discord.js';
+import type { ClientEvents } from 'discord.js';
 import { EventContext } from './EventContext';
 
 export interface IClientEvent<Name extends keyof ClientEvents> {

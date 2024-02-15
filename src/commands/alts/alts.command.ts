@@ -7,7 +7,7 @@ import {
 	SlashCommandBuilder,
 } from 'discord.js';
 import { Command } from '../../classes/Command';
-import { Alt, AltStatus } from '../../classes/BotClient';
+import { type Alt, AltStatus } from '../../classes/BotClient';
 import { Emojis } from '../../constants';
 import { PaginationBuilder, PaginationManager } from 'pagination-manager';
 
