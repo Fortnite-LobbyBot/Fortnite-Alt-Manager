@@ -7,4 +7,5 @@ export enum Emojis {
 	Blank = '<:b:1206770326453620736>',
 	Reload = '<:Reload:1207020664498683914>',
 	User = '<:U:876783382820954112>',
+	Question = '<:Question:876801322156978178>'
 }
