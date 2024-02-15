@@ -204,55 +204,32 @@ export default new Command({
 		});
 
 		collector.on('collect', async (i) => {
-			if (i.user.id === interaction.user.id) {
+			if (i.user.id === interaction.user.id || i.message.reference)
 				await i.deferUpdate();
-				switch (i.customId) {
-					case 'first':
-						paginationManager.first();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					case 'prev': {
-						paginationManager.prev();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-					case 'reload': {
-						registerPages();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-					case 'next': {
-						paginationManager.next();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-					case 'last': {
-						paginationManager.last();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-				}
-			} else {
-				await i.reply({
-					content: 'Not your buttons.',
-					ephemeral: true,
-				});
+			else await i.deferReply({ ephemeral: true });
+
+			switch (i.customId) {
+				case 'first':
+					paginationManager.first();
+					break;
+				case 'prev':
+					paginationManager.prev();
+					break;
+				case 'reload':
+					registerPages();
+					break;
+				case 'next':
+					paginationManager.next();
+					break;
+				case 'last':
+					paginationManager.last();
+					break;
 			}
+
+			await i.editReply({
+				embeds: [getPageEmbed()],
+				components: [getPageActionRow()],
+			});
 		});
 
 		collector.on('end', async () => {
