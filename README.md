@@ -2,7 +2,7 @@
 
 A Discord bot to manage your Fortnite bot lobbies alt names and share them with other Discord servers.
 
-[Invite it to your Discprd server](https://discord.com/api/oauth2/authorize?client_id=1206554784811712533&permissions=0&scope=bot%20applications.commands)
+[Invite it to your Discord server](https://discord.com/api/oauth2/authorize?client_id=1206554784811712533&permissions=0&scope=bot%20applications.commands)
 
 ## Preview
 
@@ -10,7 +10,7 @@ A Discord bot to manage your Fortnite bot lobbies alt names and share them with 
 
 ![/alts](https://github.com/tnfAngel-Development/Fortnite-Alt-Manager/assets/57068341/2dc8f874-c007-4b00-a7fc-88fb353ffdf7)
 
-/manage-alt 
+/manage-alt
 
 ![/manage-alt add-alt](https://github.com/tnfAngel-Development/Fortnite-Alt-Manager/assets/57068341/9ad8af1f-6739-44d6-80ee-a80ad3cc96a9)
 
