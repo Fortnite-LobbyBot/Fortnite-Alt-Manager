@@ -16,7 +16,7 @@ export default new Command({
 	config: () => ({
 		slash: new SlashCommandBuilder()
 			.setName('alts')
-			.setDescription('View the available alts.')
+			.setDescription('View the available alts for bot lobbies.')
 			.addBooleanOption((o) =>
 				o
 					.setName('global')
@@ -41,6 +41,7 @@ export default new Command({
 		let paginationManager: PaginationManager<Alt[]>;
 
 		const chunkSize = 4;
+
 		function getAlts() {
 			const finalAlts: Alt[] = [];
 
@@ -112,7 +113,7 @@ export default new Command({
 				.setColor(0x43b581)
 				.setAuthor({
 					iconURL: interaction.guild?.iconURL() ?? undefined,
-					name: 'Available alts for bot lobbies',
+					name: 'Available Alts for Bot Lobbies',
 				})
 				.setDescription(
 					(!isGlobal &&
@@ -134,7 +135,7 @@ export default new Command({
 						? {
 								text: `Page ${
 									paginationManager.pageIndicator
-								} - ${
+								} • ${
 									paginationManager.pagesSize * chunkSize +
 									paginationManager.getPage(
 										paginationManager.pagesSize
