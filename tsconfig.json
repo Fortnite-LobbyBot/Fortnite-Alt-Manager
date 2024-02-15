@@ -1,34 +1,31 @@
 {
+	"$schema": "https://json.schemastore.org/tsconfig.json",
 	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
-		"alwaysStrict": true,
-		"esModuleInterop": true,
-		"experimentalDecorators": true,
-		"forceConsistentCasingInFileNames": true,
-		"importHelpers": true,
-		"lib": [
-			"esnext"
-		],
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"newLine": "lf",
-		"noEmitHelpers": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitReturns": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"outDir": "dist",
-		"preserveConstEnums": true,
-		"pretty": true,
-		"rootDir": "src",
-		"removeComments": false,
+		"lib": ["ESNext"],
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleDetection": "force",
+		"moduleResolution": "Bundler",
+
+		"allowJs": true,
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
 		"resolveJsonModule": true,
+		"skipLibCheck": true,
+
 		"strict": true,
-		"target": "ES2016",
-		"useDefineForClassFields": true,
-		"skipLibCheck": true
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"exactOptionalPropertyTypes": false,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"verbatimModuleSyntax": true
 	},
-	"include": [
-		"src"
-	]
+	"include": ["src/**/*.ts"],
+	"exclude": ["dist/","node_modules/"]
 }

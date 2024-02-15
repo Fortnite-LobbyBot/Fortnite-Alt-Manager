@@ -35,14 +35,16 @@ export class BotClient extends Client {
 	alts = new Map<string, Alt[]>();
 
 	async setup() {
-		this.eventHandler.start();
+		const token = process.env['TOKEN'] as string;
 
-		const token = process.env.TOKEN as string;
+		super.login(token);
+
+		this.eventHandler.start();
 
 		const rest = new REST().setToken(token);
 
 		await rest.put(
-			Routes.applicationCommands(process.env.CLIENT_ID ?? ''),
+			Routes.applicationCommands(process.env['CLIENT_ID'] ?? ''),
 			{
 				body: [
 					...this.managers.commandManager
@@ -53,11 +55,5 @@ export class BotClient extends Client {
 		);
 
 		console.log('Posted commands');
-
-		super.login(token);
-	}
-
-	async destroy() {
-		super.destroy();
 	}
 }
