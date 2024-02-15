@@ -40,7 +40,7 @@ export default new Command({
 
 		let paginationManager: PaginationManager<Alt[]>;
 
-		const chunkSize = 4;
+		const chunkSize = 5;
 
 		function getAlts() {
 			const finalAlts: Alt[] = [];
@@ -95,7 +95,9 @@ export default new Command({
 					name: `${
 						isKnownGid || !isGlobal
 							? ''
-							: `${client.guilds.cache.get(gId) ?? 'Unknown'}\n\n`
+							: `${i !== 0 ? `${Emojis.Blank}\n` : ''}${
+									client.guilds.cache.get(gId) ?? 'Unknown'
+							  }\n\n`
 					}${
 						client.managers.altManager.getStatus(alt.status).emoji
 					} ${alt.name} - ${AltStatus[alt.status]}${
@@ -104,7 +106,7 @@ export default new Command({
 					value: `${client.util.toRelativeTimestamp(
 						alt.timestamp
 					)} - by <@${alt.userId}>${
-						i !== currentPage.length - 1 ? `\n${Emojis.Blank}` : ''
+						i === currentPage.length - 1 ? `\n${Emojis.Blank}` : ''
 					}`,
 				};
 			});
@@ -117,7 +119,7 @@ export default new Command({
 				})
 				.setDescription(
 					(!isGlobal &&
-						`${Emojis.Private} _Showing only alts of this server_\n${Emojis.Blank}`) ||
+						`${Emojis.Private} _Showing only alts of this server._\n${Emojis.Blank}`) ||
 						null
 				)
 				.setFields(
@@ -125,8 +127,8 @@ export default new Command({
 						? fields
 						: [
 								{
-									name: 'No alts available',
-									value: 'Sorry, there are no alts available at this moment, try again later.',
+									name: `${Emojis.User} No alts available right now`,
+									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.`,
 								},
 						  ]
 				)
@@ -144,7 +146,7 @@ export default new Command({
 						  }
 						: null
 				)
-				.setTimestamp();
+				.setTimestamp(fields.length ? Date.now() : null);
 		};
 
 		const getPageActionRow = (disableAll = false) => {
@@ -204,55 +206,32 @@ export default new Command({
 		});
 
 		collector.on('collect', async (i) => {
-			if (i.user.id === interaction.user.id) {
+			if (i.user.id === interaction.user.id || i.message.reference)
 				await i.deferUpdate();
-				switch (i.customId) {
-					case 'first':
-						paginationManager.first();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					case 'prev': {
-						paginationManager.prev();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-					case 'reload': {
-						registerPages();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-					case 'next': {
-						paginationManager.next();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-					case 'last': {
-						paginationManager.last();
-						await interaction.editReply({
-							embeds: [getPageEmbed()],
-							components: [getPageActionRow()],
-						});
-						break;
-					}
-				}
-			} else {
-				await i.reply({
-					content: 'Not your buttons.',
-					ephemeral: true,
-				});
+			else await i.deferReply({ ephemeral: true });
+
+			switch (i.customId) {
+				case 'first':
+					paginationManager.first();
+					break;
+				case 'prev':
+					paginationManager.prev();
+					break;
+				case 'reload':
+					registerPages();
+					break;
+				case 'next':
+					paginationManager.next();
+					break;
+				case 'last':
+					paginationManager.last();
+					break;
 			}
+
+			await i.editReply({
+				embeds: [getPageEmbed()],
+				components: [getPageActionRow()],
+			});
 		});
 
 		collector.on('end', async () => {
