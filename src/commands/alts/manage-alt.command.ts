@@ -68,7 +68,7 @@ export default new Command({
 		if (subcommand !== 'add-alt' && !userAlt)
 			return interaction.reply({
 				content:
-					'You need to add an alt first. Add it with: </manage-alt:1206685461246910474> add-alt.',
+					'You need to add an alt first. Add it with: </manage-alt add-alt:1206685461246910474>.',
 				ephemeral: true,
 			});
 
