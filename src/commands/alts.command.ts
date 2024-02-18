@@ -6,70 +6,97 @@ import {
 	EmbedBuilder,
 	SlashCommandBuilder,
 } from 'discord.js';
-import { Command } from '../classes/Command';
-import { type Alt, AltStatus } from '../classes/BotClient';
 import { Emojis } from '../constants';
+import { Command } from '../classes/Command';
+import { type Alt, AltStatus, BotClient } from '../classes/BotClient';
+import type { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
 import { PaginationBuilder, PaginationManager } from 'pagination-manager';
+import type { HandleComponentInteractionContext } from '../classes/HandleInteractionContext';
 
-export default new Command({
-	id: 'alts',
-	config: () => ({
-		slash: new SlashCommandBuilder()
-			.setName('alts')
-			.setDescription('View the available alts for bot lobbies.')
-			.addBooleanOption((o) =>
-				o
-					.setName('global')
-					.setDescription(
-						'Display global alts, not only the ones on this server'
-					)
-					.setRequired(false)
-			),
-	}),
-	run: async ({ client, interaction }) => {
-		if (!interaction.inCachedGuild())
-			return interaction.reply({
-				content: 'Invalid guild.',
-				ephemeral: true,
-			});
+enum CustomId {
+	FirstPage = '0',
+	PrevPage = '1',
+	Reload = '2',
+	NextPage = '3',
+	LastPage = '4',
+}
+
+export default class AltsCommand extends Command {
+	id = 'alts';
+
+	getConfig() {
+		return {
+			slash: new SlashCommandBuilder()
+				.setName('alts')
+				.setDescription('View the available alts for bot lobbies.')
+				.addBooleanOption((o) =>
+					o
+						.setName('global')
+						.setDescription(
+							'Display global alts, not only the ones on this server',
+						)
+						.setRequired(false),
+				)
+				.addBooleanOption((o) =>
+					o
+						.setName('ephemeral')
+						.setDescription('Only display the command for you')
+						.setRequired(false),
+				),
+		};
+	}
+
+	public static getAlts(
+		client: BotClient,
+		currentGuildId: string | null,
+		isGlobal: boolean,
+	) {
+		const finalAlts: Alt[] = [];
+
+		const guildAlts: Alt[] = client.alts.get(currentGuildId) ?? [];
+
+		if (isGlobal) {
+			for (const [guildId, alts] of client.alts)
+				if (guildId !== currentGuildId)
+					for (const alt of alts)
+						if (!alt.private) finalAlts.push({ ...alt, guildId });
+
+			finalAlts.sort((a, b) => a.timestamp - b.timestamp);
+
+			finalAlts.sort((a, b) => b.status - a.status);
+		}
+
+		finalAlts.push(...guildAlts);
+
+		return finalAlts;
+	}
+
+	async handleRun({ interaction }: CommandHandleRunContext) {
+		const client = this.client;
 
 		const currentGuildId = interaction.guildId;
 
 		const isGlobal =
 			interaction.options.getBoolean('global', false) ?? true;
 
+		const ephemeral =
+			interaction.options.getBoolean('ephemeral', false) ?? false;
+
 		let paginationManager: PaginationManager<Alt[]>;
 
 		const chunkSize = 5;
 
-		function getAlts() {
-			const finalAlts: Alt[] = [];
+		const registerPages = () => {
+			const finalAlts = AltsCommand.getAlts(
+				this.client,
+				currentGuildId,
+				isGlobal,
+			);
 
-			const guildAlts: Alt[] = client.alts.get(currentGuildId) ?? [];
-
-			if (isGlobal) {
-				for (const [guildId, alts] of client.alts)
-					if (guildId !== currentGuildId)
-						for (const alt of alts)
-							if (!alt.private)
-								finalAlts.push({ ...alt, guildId });
-
-				finalAlts.sort((a, b) => a.timestamp - b.timestamp);
-
-				finalAlts.sort((a, b) => b.status - a.status);
-			}
-
-			finalAlts.push(...guildAlts);
-
-			return finalAlts;
-		}
-
-		function registerPages() {
-			const finalAlts = getAlts();
 			const chunkedAlts = client.util.chunkArray(
 				finalAlts,
 				chunkSize,
-				true
+				true,
 			);
 
 			const pagesBuilder = new PaginationBuilder<Alt[]>()
@@ -77,7 +104,7 @@ export default new Command({
 				.setOptions({ infinitePages: true });
 
 			paginationManager = new PaginationManager(pagesBuilder);
-		}
+		};
 
 		registerPages();
 
@@ -95,16 +122,19 @@ export default new Command({
 					name: `${
 						isKnownGid || !isGlobal
 							? ''
-							: `${i !== 0 ? `${Emojis.Blank}\n` : ''}${
-									client.guilds.cache.get(gId) ?? 'Unknown'
-							  }\n\n`
+							: `${Emojis.Blank}\n${
+									gId
+										? client.guilds.cache.get(gId) ??
+											'Unknown'
+										: 'No guild'
+								}\n\n`
 					}${
 						client.managers.altManager.getStatus(alt.status).emoji
 					} ${alt.name} - ${AltStatus[alt.status]}${
 						alt.private ? ` ${Emojis.Private}` : ''
 					}`,
 					value: `${client.util.toRelativeTimestamp(
-						alt.timestamp
+						alt.timestamp,
 					)} - by <@${alt.userId}>${
 						i === currentPage.length - 1 ? `\n${Emojis.Blank}` : ''
 					}`,
@@ -120,7 +150,7 @@ export default new Command({
 				.setDescription(
 					(!isGlobal &&
 						`${Emojis.Private} _Showing only alts of this server._\n${Emojis.Blank}`) ||
-						null
+						null,
 				)
 				.setFields(
 					fields.length
@@ -130,7 +160,7 @@ export default new Command({
 									name: `${Emojis.User} No alts available right now`,
 									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.\n\n${Emojis.Question} Add your own alt with </manage-alt add-alt:1206685461246910474>.`,
 								},
-						  ]
+							],
 				)
 				.setFooter(
 					fields.length
@@ -140,11 +170,11 @@ export default new Command({
 								} • ${
 									paginationManager.pagesSize * chunkSize +
 									paginationManager.getPage(
-										paginationManager.pagesSize
+										paginationManager.pagesSize,
 									)?.length
 								} Alts registered`,
-						  }
-						: null
+							}
+						: null,
 				)
 				.setTimestamp(fields.length ? Date.now() : null);
 		};
@@ -153,40 +183,40 @@ export default new Command({
 			const actionRow =
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
-						.setCustomId('first')
+						.setCustomId(CustomId.FirstPage)
 						.setLabel('<<')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(paginationManager.currentPageIndex === 0),
 					new ButtonBuilder()
-						.setCustomId('prev')
+						.setCustomId(CustomId.PrevPage)
 						.setLabel('<')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(paginationManager.currentPageIndex === 0),
 					new ButtonBuilder()
-						.setCustomId('reload')
+						.setCustomId(CustomId.Reload)
 						.setEmoji(Emojis.Reload)
 						.setStyle(ButtonStyle.Secondary),
 					new ButtonBuilder()
-						.setCustomId('next')
+						.setCustomId(CustomId.NextPage)
 						.setLabel('>')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(
 							paginationManager.currentPageIndex ===
-								paginationManager.pagesSize
+								paginationManager.pagesSize,
 						),
 					new ButtonBuilder()
-						.setCustomId('last')
+						.setCustomId(CustomId.LastPage)
 						.setLabel('>>')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(
 							paginationManager.currentPageIndex ===
-								paginationManager.pagesSize
-						)
+								paginationManager.pagesSize,
+						),
 				);
 
 			if (disableAll) {
 				const newComponents = actionRow.components.map(
-					(buttonBuilder) => buttonBuilder.setDisabled(true)
+					(buttonBuilder) => buttonBuilder.setDisabled(true),
 				);
 
 				actionRow.setComponents(newComponents);
@@ -195,49 +225,60 @@ export default new Command({
 			return actionRow;
 		};
 
-		const message = await interaction.reply({
-			embeds: [getPageEmbed()],
-			components: [getPageActionRow()],
-		});
+		const message = await interaction
+			.reply({
+				embeds: [getPageEmbed()],
+				components: [getPageActionRow()],
+				ephemeral,
+			})
+			.catch(() => null);
 
-		const collector = message.createMessageComponentCollector({
+		const collector = message?.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 5000, //300000,
+			time: 300000,
 		});
 
-		collector.on('collect', async (i) => {
-			if (i.user.id === interaction.user.id || i.message.reference)
-				await i.deferUpdate();
-			else await i.deferReply({ ephemeral: true });
+		collector?.on('collect', async (i) => {
+			await i.deferUpdate();
 
 			switch (i.customId) {
-				case 'first':
+				case CustomId.FirstPage:
 					paginationManager.first();
 					break;
-				case 'prev':
+				case CustomId.PrevPage:
 					paginationManager.prev();
 					break;
-				case 'reload':
+				case CustomId.Reload:
 					registerPages();
 					break;
-				case 'next':
+				case CustomId.NextPage:
 					paginationManager.next();
 					break;
-				case 'last':
+				case CustomId.LastPage:
 					paginationManager.last();
 					break;
 			}
 
-			await i.editReply({
-				embeds: [getPageEmbed()],
-				components: [getPageActionRow()],
-			});
+			await i
+				.editReply({
+					embeds: [getPageEmbed()],
+					components: [getPageActionRow()],
+				})
+				.catch(() => null);
 		});
 
-		collector.on('end', async () => {
-			await interaction.editReply({
-				components: [getPageActionRow(true)],
-			});
+		collector?.on('end', async () => {
+			await interaction
+				.editReply({
+					components: [getPageActionRow(true)],
+				})
+				.catch(() => null);
 		});
-	},
-});
+	}
+
+	public override async handleComponentInteraction(
+		ctx: HandleComponentInteractionContext,
+	): Promise<any> {
+		await ctx.interaction.editReply('sucks');
+	}
+}

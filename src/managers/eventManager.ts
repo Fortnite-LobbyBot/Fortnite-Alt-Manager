@@ -4,7 +4,7 @@ import type { ClientEvents } from 'discord.js';
 import type { IClientEvent } from '../classes/ClientEvent';
 
 export class EventManager {
-	getEvents(): IClientEvent<keyof ClientEvents>[] {
+	getEvents() {
 		const events: IClientEvent<keyof ClientEvents>[] = [];
 
 		function searchEvent(path: string) {
@@ -33,9 +33,7 @@ export class EventManager {
 		return events;
 	}
 
-	getEvent(
-		predicate: (event: IClientEvent<keyof ClientEvents>) => boolean
-	): IClientEvent<keyof ClientEvents> | undefined {
+	findEvent(predicate: (event: IClientEvent<keyof ClientEvents>) => boolean) {
 		return this.getEvents().find(predicate);
 	}
 }

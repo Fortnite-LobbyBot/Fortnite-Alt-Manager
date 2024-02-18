@@ -1,68 +1,57 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	EmbedBuilder,
+	SlashCommandBuilder,
+} from 'discord.js';
 import { Command } from '../classes/Command';
-import { AltStatus } from '../classes/BotClient';
+import { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
+import { AltStatus, BotClient, type Alt } from '../classes/BotClient';
 
-export default new Command({
-	id: 'manage-alt',
-	config: () => ({
-		slash: new SlashCommandBuilder()
-			.setName('manage-alt')
-			.setDescription('Manage your alts.')
-			.addSubcommand((c) =>
-				c
-					.setName('add-alt')
-					.setDescription('Adds your alt to the system')
-					.addStringOption((o) =>
-						o
-							.setName('name')
-							.setDescription(
-								'The Fortnite display name of your alt'
-							)
-							.setRequired(true)
-							.setMaxLength(64)
-					)
-					.addBooleanOption((o) =>
-						o
-							.setName('private')
-							.setDescription(
-								'Should the alt be displayed in other Discord servers?'
-							)
-							.setRequired(false)
-					)
-			)
-			.addSubcommand((c) =>
-				c.setName('set-online').setDescription('Set your alt as online')
-			)
-			.addSubcommand((c) =>
-				c.setName('set-busy').setDescription('Set your alt as busy')
-			)
-			.addSubcommand((c) =>
-				c.setName('set-idle').setDescription('Set your alt as idle')
-			)
-			.addSubcommand((c) =>
-				c
-					.setName('set-offline')
-					.setDescription('Set your alt as offline')
-			)
-			.addSubcommand((c) =>
-				c
-					.setName('remove-alt')
-					.setDescription('Removes your alt from the system')
-			)
-			.addSubcommand((c) =>
-				c
-					.setName('panel')
-					.setDescription(
-						'Shows an interactive panel for managing your alt'
-					)
-			),
-	}),
-	run: async ({ client, interaction }) => {
-		if (!interaction.inCachedGuild())
-			return interaction.reply({
-				content: 'Invalid guild.',
-				ephemeral: true,
-			});
+export default class ManageAltCommand extends Command {
+	id = 'manage-alt';
+
+	getConfig() {
+		return {
+			slash: new SlashCommandBuilder()
+				.setName('manage-alt')
+				.setDescription('Manage your alts.')
+				.addSubcommand((c) =>
+					c
+						.setName('panel')
+						.setDescription(
+							'Shows an interactive panel for managing your alt',
+						),
+				)
+				.addSubcommand((c) =>
+					c
+						.setName('set-online')
+						.setDescription('Set your alt as online'),
+				)
+				.addSubcommand((c) =>
+					c
+						.setName('set-busy')
+						.setDescription('Set your alt as busy'),
+				)
+				.addSubcommand((c) =>
+					c
+						.setName('set-idle')
+						.setDescription('Set your alt as idle'),
+				)
+				.addSubcommand((c) =>
+					c
+						.setName('set-offline')
+						.setDescription('Set your alt as offline'),
+				)
+				.addSubcommand((c) =>
+					c
+						.setName('remove-alt')
+						.setDescription('Removes your alt from the system'),
+				),
+		};
+	}
+
+	async handleRun({ interaction }: CommandHandleRunContext) {
+		const client = this.client;
 
 		const subcommand = interaction.options.getSubcommand(true);
 
@@ -79,54 +68,21 @@ export default new Command({
 				ephemeral: true,
 			});
 
-		async function updateAltStatus(status: AltStatus, alt = userAlt) {
+		const updateAltStatus = (status: AltStatus, alt = userAlt) => {
 			if (!alt) return;
 
 			client.managers.altManager.setStatus(currentGuildId, alt, status);
 
-			return postAltStatus(status, alt);
-		}
-
-		async function postAltStatus(status: AltStatus, alt = userAlt) {
-			if (!alt) return;
-
-			const { color: embedColor, emoji: embedEmoji } =
-				client.managers.altManager.getStatus(status);
-
-			await interaction.reply({
-				embeds: [
-					new EmbedBuilder()
-						.setColor(embedColor)
-						.setDescription(
-							`${embedEmoji} The alt ${client.util.toCode(
-								alt.name
-							)} is now: **${AltStatus[status]}**`
-						),
-				],
-			});
-		}
-
-		async function postAltPanel(status: AltStatus, alt = userAlt) {
-			if (!alt) return;
-
-			const { color: embedColor, emoji: embedEmoji } =
-				client.managers.altManager.getStatus(status);
-
-			await interaction.reply({
-				embeds: [
-					new EmbedBuilder()
-						.setColor(embedColor)
-						.setDescription(
-							`${embedEmoji} The alt ${client.util.toCode(
-								alt.name
-							)} is now: **${AltStatus[status]}**`
-						),
-				],
-			});
-		}
+			return ManageAltCommand.postAltStatus(
+				this.client,
+				status,
+				alt,
+				interaction,
+			);
+		};
 
 		switch (subcommand) {
-			case 'add-alt': {
+			case 'panel': {
 				if (userAlt)
 					return interaction.reply({
 						content: 'You cannot have more than one alt.',
@@ -134,19 +90,23 @@ export default new Command({
 					});
 
 				const alt = {
-					guildId: interaction.guildId ?? undefined,
 					userId: interaction.user.id,
 					name: interaction.options.getString('name', true),
 					status: AltStatus.Online,
 					timestamp: Date.now(),
 					private:
 						interaction.options.getBoolean('private', false) ??
-						undefined,
+						false,
 				};
 
 				client.managers.altManager.addAlt(currentGuildId, alt);
 
-				await postAltStatus(AltStatus.Online, alt);
+				await ManageAltCommand.postAltStatus(
+					this.client,
+					AltStatus.Online,
+					alt,
+					interaction,
+				);
 
 				break;
 			}
@@ -169,7 +129,7 @@ export default new Command({
 			case 'remove-alt':
 				client.managers.altManager.removeAlt(
 					currentGuildId,
-					interaction.user.id
+					interaction.user.id,
 				);
 
 				return interaction.reply({
@@ -177,5 +137,53 @@ export default new Command({
 					ephemeral: true,
 				});
 		}
-	},
-});
+	}
+
+	static async postAltStatus(
+		client: BotClient,
+		status: AltStatus,
+		alt: Alt,
+		interaction: ChatInputCommandInteraction,
+	) {
+		if (!alt) return;
+
+		const { color: embedColor, emoji: embedEmoji } =
+			client.managers.altManager.getStatus(status);
+
+		await interaction.reply({
+			embeds: [
+				new EmbedBuilder()
+					.setColor(embedColor)
+					.setDescription(
+						`${embedEmoji} The alt ${client.util.toCode(
+							alt.name,
+						)} is now: **${AltStatus[status]}**`,
+					),
+			],
+		});
+	}
+
+	static async postAltPanel(
+		client: BotClient,
+		status: AltStatus,
+		alt: Alt,
+		interaction: ChatInputCommandInteraction,
+	) {
+		if (!alt) return;
+
+		const { color: embedColor, emoji: embedEmoji } =
+			client.managers.altManager.getStatus(status);
+
+		await interaction.reply({
+			embeds: [
+				new EmbedBuilder()
+					.setColor(embedColor)
+					.setDescription(
+						`${embedEmoji} The alt ${client.util.toCode(
+							alt.name,
+						)} is now: **${AltStatus[status]}**`,
+					),
+			],
+		});
+	}
+}

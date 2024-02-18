@@ -10,7 +10,7 @@ export default new ClientEvent({
 			client.user?.tag,
 			'in',
 			client.guilds.cache.size,
-			'guilds'
+			'guilds',
 		);
 	},
 });

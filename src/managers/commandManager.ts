@@ -3,8 +3,8 @@ import { readdirSync, existsSync } from 'fs';
 import { Command } from '../classes/Command';
 
 export class CommandManager {
-	getCommands(): Command[] {
-		const commands: Command[] = [];
+	getCommands() {
+		const commands: any[] = [];
 
 		function searchCommands(path: string) {
 			const commandsPath = join(__dirname, path);
@@ -17,7 +17,7 @@ export class CommandManager {
 					const {
 						default: command,
 					}: {
-						default: Command;
+						default: typeof Command;
 					} = require(join(commandsPath, commandName));
 
 					commands.push(command);
@@ -32,7 +32,7 @@ export class CommandManager {
 		return commands;
 	}
 
-	getCommand(predicate: (command: Command) => boolean): Command | undefined {
+	findCommand(predicate: (command: any) => boolean) {
 		return this.getCommands().find(predicate);
 	}
 }

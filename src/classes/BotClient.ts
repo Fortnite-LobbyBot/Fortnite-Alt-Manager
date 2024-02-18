@@ -4,9 +4,11 @@ import { CommandManager } from '../managers/commandManager';
 import { EventHandler } from '../handlers/eventHandler';
 import { EventManager } from '../managers/eventManager';
 import { AltManager } from '../managers/altManager';
+import type { Command } from './Command';
+import { CommandHandler } from '../handlers/commandHandler';
 
 export interface Alt {
-	guildId?: string;
+	guildId?: string | null;
 	userId: string;
 	name: string;
 	status: AltStatus;
@@ -24,15 +26,21 @@ export enum AltStatus {
 export class BotClient extends Client {
 	public util = new ClientUtil();
 
-	public eventHandler = new EventHandler(this);
-
 	public managers = {
 		altManager: new AltManager(this),
 		commandManager: new CommandManager(),
 		eventManager: new EventManager(),
 	};
 
-	public alts = new Map<string, Alt[]>();
+	public commands = new Map<string, Command>();
+
+	public alts = new Map<string | null, Alt[]>();
+
+	public cooldowns = new Map<string, number>();
+
+	private eventHandler = new EventHandler(this);
+
+	private commandHandler = new CommandHandler(this);
 
 	async setup() {
 		const token = process.env['TOKEN'];
@@ -44,19 +52,21 @@ export class BotClient extends Client {
 					token ? 'CLIENT_ID' : 'TOKEN'
 				} not specified. Please add it to your .env.${
 					process.env['NODE_ENV'] ?? 'development'
-				} file`
+				} file`,
 			);
 
-		super.login(token);
+		await super.login(token);
 
-		this.eventHandler.start();
+		this.eventHandler.setup();
 
-		const commands = this.managers.commandManager.getCommands();
+		this.commandHandler.setup();
+
+		const commands = [...this.commands.values()];
 
 		const rest = new REST().setToken(token);
 
 		await rest.put(Routes.applicationCommands(clientId), {
-			body: commands.map((cmd) => cmd.getConfig({ client: this }).slash),
+			body: commands.map((cmd) => cmd.getConfig({}).slash),
 		});
 
 		console.log('Posted', commands.length, 'commands');

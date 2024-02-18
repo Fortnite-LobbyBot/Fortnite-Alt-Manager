@@ -1,6 +1,14 @@
-import { CommandConfigContext } from './CommandConfigContext';
-import { CommandRunContext } from './CommandRunContext';
 import { SlashCommandBuilder } from 'discord.js';
+import type { BotClient } from './BotClient';
+import type { CommandConfigContext } from './CommandConfigContext';
+import type { CommandHandleRunContext } from './CommandHandleRunContext';
+import type {
+	HandleAutocompleteInteractionContext,
+	HandleComponentInteractionContext,
+	HandleContextMenuInteractionContext,
+	HandleInteractionContext,
+	HandleModalSubmitInteractionContext,
+} from './HandleInteractionContext';
 
 type SlashBuilder = Omit<
 	SlashCommandBuilder,
@@ -18,29 +26,63 @@ type SlashBuilder = Omit<
 >;
 
 export interface ICommand {
-	id: string;
-	config: (ctx: CommandConfigContext) => {
+	readonly id: string;
+	readonly client: BotClient;
+
+	getConfig(ctx: CommandConfigContext): {
 		slash: SlashBuilder;
 		isHidden?: boolean;
 	};
-	run: (ctx: CommandRunContext) => Promise<any>;
+
+	handleRun(ctx: CommandHandleRunContext): Promise<any>;
+
+	handleAutocompleteInteraction?(
+		ctx: HandleAutocompleteInteractionContext,
+	): Promise<any>;
+
+	handleContextMenuInteraction?(
+		ctx: HandleContextMenuInteractionContext,
+	): Promise<any>;
+
+	handleModalSubmitInteraction?(
+		ctx: HandleModalSubmitInteractionContext,
+	): Promise<any>;
+
+	handleComponentInteraction?(
+		ctx: HandleComponentInteractionContext,
+	): Promise<any>;
 }
 
-export class Command implements ICommand {
-	id: string;
-	config: (ctx: CommandConfigContext) => {
+export abstract class Command implements ICommand {
+	public abstract readonly id: string;
+	public readonly client: BotClient;
+
+	public constructor(client: BotClient) {
+		this.client = client;
+	}
+
+	public abstract getConfig(ctx: CommandConfigContext): {
 		slash: SlashBuilder;
 		isHidden?: boolean;
 	};
-	run: (ctx: CommandRunContext) => Promise<any>;
 
-	constructor(commandOptions: ICommand) {
-		this.id = commandOptions.id;
-		this.config = commandOptions.config;
-		this.run = commandOptions.run;
-	}
+	public abstract handleRun(ctx: CommandHandleRunContext): Promise<any>;
 
-	getConfig(ctx: CommandConfigContext) {
-		return this.config(ctx);
-	}
+	public handleInteraction?(ctx: HandleInteractionContext): Promise<any>;
+
+	public handleAutocompleteInteraction?(
+		ctx: HandleAutocompleteInteractionContext,
+	): Promise<any>;
+
+	public handleContextMenuInteraction?(
+		ctx: HandleContextMenuInteractionContext,
+	): Promise<any>;
+
+	public handleModalSubmitInteraction?(
+		ctx: HandleModalSubmitInteractionContext,
+	): Promise<any>;
+
+	public handleComponentInteraction?(
+		ctx: HandleComponentInteractionContext,
+	): Promise<any>;
 }

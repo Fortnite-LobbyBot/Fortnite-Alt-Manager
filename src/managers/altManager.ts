@@ -8,7 +8,7 @@ export class AltManager {
 		this.client = client;
 	}
 
-	addAlt(guildId: string, alt: Alt) {
+	addAlt(guildId: string | null, alt: Alt) {
 		const guildAlts = this.client.alts.get(guildId) ?? [];
 
 		guildAlts.push(alt);
@@ -47,18 +47,18 @@ export class AltManager {
 		return { color, emoji };
 	}
 
-	setStatus(guildId: string, alt: Alt, status: AltStatus) {
+	setStatus(guildId: string | null, alt: Alt, status: AltStatus) {
 		this.removeAlt(guildId, alt.userId);
 
 		this.addAlt(guildId, { ...alt, status, timestamp: Date.now() });
 	}
 
-	removeAlt(guildId: string, userId: string) {
+	removeAlt(guildId: string | null, userId: string) {
 		const guildAlts = this.client.alts.get(guildId) ?? [];
 
 		this.client.alts.set(
 			guildId,
-			guildAlts.filter((a) => a.userId !== userId)
+			guildAlts.filter((a) => a.userId !== userId),
 		);
 	}
 }

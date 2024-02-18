@@ -7,7 +7,7 @@ export class EventHandler {
 		this.client = client;
 	}
 
-	async start() {
+	async setup() {
 		const events = this.client.managers.eventManager.getEvents();
 
 		for (const event of events) {
@@ -19,7 +19,7 @@ export class EventHandler {
 						{
 							client: this.client,
 						},
-						...args
+						...args,
 					)
 					.catch((err) => console.error('Event failed:', err));
 			};
