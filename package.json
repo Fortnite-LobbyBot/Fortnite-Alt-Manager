@@ -4,7 +4,10 @@
   "description": "BL Alt Manager",
   "scripts": {
     "start": "NODE_ENV=production bun src/index.ts",
-    "dev": "NODE_ENV=development bun src/index.ts"
+    "dev": "NODE_ENV=development bun src/index.ts",
+    "pretty": "bunx prettier . --write",
+    "lint": "bun run lint:tsc",
+    "lint:tsc": "bunx tsc --noEmit"
   },
   "main": "index.js",
   "author": "tnfAngel",
@@ -15,7 +18,10 @@
     "tslib": "^2.6.2"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "@types/bun": "^1.0.5"
+    "@types/bun": "^1.0.6",
+    "prettier": "^3.2.5",
+    "prettier-plugin-jsdoc": "^1.3.0",
+    "prettier-plugin-packagejson": "^2.4.11",
+    "typescript": "^5.3.3"
   }
 }
