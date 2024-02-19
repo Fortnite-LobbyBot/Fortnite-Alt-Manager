@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^14.14.1",
+    "ky": "^1.2.0",
     "pagination-manager": "^1.0.6",
     "tslib": "^2.6.2"
   },

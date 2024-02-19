@@ -6,22 +6,7 @@ import { EventManager } from '../managers/eventManager';
 import { AltManager } from '../managers/altManager';
 import type { Command } from './Command';
 import { CommandHandler } from '../handlers/commandHandler';
-
-export interface Alt {
-	guildId?: string | null;
-	userId: string;
-	name: string;
-	status: AltStatus;
-	timestamp: number;
-	private?: boolean;
-}
-
-export enum AltStatus {
-	Online = 0,
-	Busy = 1,
-	Idle = 2,
-	Offline = 3,
-}
+import type { Alt } from '../types/Alt';
 
 export class BotClient extends Client {
 	public util = new ClientUtil();

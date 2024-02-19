@@ -5,7 +5,8 @@ import {
 } from 'discord.js';
 import { Command } from '../classes/Command';
 import { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
-import { AltStatus, BotClient, type Alt } from '../classes/BotClient';
+import { BotClient } from '../classes/BotClient';
+import { AltStatus, type Alt } from '../types/Alt';
 
 export default class ManageAltCommand extends Command {
 	id = 'manage-alt';

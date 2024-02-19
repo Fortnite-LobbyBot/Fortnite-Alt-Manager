@@ -8,10 +8,11 @@ import {
 } from 'discord.js';
 import { Emojis } from '../constants';
 import { Command } from '../classes/Command';
-import { type Alt, AltStatus, BotClient } from '../classes/BotClient';
+import { BotClient } from '../classes/BotClient';
 import type { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
 import { PaginationBuilder, PaginationManager } from 'pagination-manager';
 import type { HandleComponentInteractionContext } from '../classes/HandleInteractionContext';
+import { AltStatus, type Alt } from '../types/Alt';
 
 enum CustomId {
 	FirstPage = '0',

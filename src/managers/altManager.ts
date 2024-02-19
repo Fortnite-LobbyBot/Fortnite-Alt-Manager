@@ -1,5 +1,6 @@
-import { type Alt, AltStatus, BotClient } from '../classes/BotClient';
+import { type BotClient } from '../classes/BotClient';
 import { Emojis } from '../constants';
+import { type Alt, AltStatus } from '../types/Alt';
 
 export class AltManager {
 	private client: BotClient;

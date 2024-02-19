@@ -1,8 +1,10 @@
+import ky from 'ky';
 import { SlashCommandBuilder } from 'discord.js';
 import { Command } from '../classes/Command';
 import { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
-import { AltStatus } from '../classes/BotClient';
 import ManageAltCommand from './manage-alt.command';
+import type { APIAccount } from '../types/APIAccount';
+import { AltStatus } from '../types/Alt';
 
 export default class PublishAltCommand extends Command {
 	id = 'publish-alt';
@@ -14,8 +16,10 @@ export default class PublishAltCommand extends Command {
 				.setDescription('Publish your alt to the system')
 				.addStringOption((o) =>
 					o
-						.setName('name')
-						.setDescription('The Fortnite display name of your alt')
+						.setName('display-name')
+						.setDescription(
+							'The Epic Games display name of your alt',
+						)
 						.setRequired(true)
 						.setMaxLength(64),
 				)
@@ -45,10 +49,54 @@ export default class PublishAltCommand extends Command {
 				ephemeral: true,
 			});
 
+		const displayName = interaction.options.getString('display-name', true);
+
+		const bannedDisplayNames = [
+			'tnfAngel',
+			'BotMM',
+			'.Gamebot',
+			'Gamebot.',
+			'bot-lobbies',
+		];
+
+		if (
+			bannedDisplayNames.some((dp) =>
+				dp.toLowerCase().includes(displayName.toLowerCase()),
+			)
+		)
+			return interaction.reply({
+				content: 'The provided display name is NOT an alt.',
+				ephemeral: true,
+			});
+
+		const user = await ky
+			.get(
+				`https://egs.jaren.wtf/api/accounts/displayName/${displayName}`,
+			)
+			.json<APIAccount>()
+			.catch(() => null);
+
+		console.log(user);
+
+		if (!user)
+			return interaction.reply({
+				content:
+					'Invalid alt name provided. Please try again with the Epic Games name of your alt.',
+				ephemeral: true,
+			});
+
+		if (user?.accountStatus !== 'ACTIVE')
+			return interaction.reply({
+				content: 'The account you provided is disabled or deleted.',
+				ephemeral: true,
+			});
+
+		const userId = user.id;
+
 		const alt = {
 			guildId: currentGuildId,
 			userId: interaction.user.id,
-			name: interaction.options.getString('name', true),
+			name: displayName,
 			status: AltStatus.Online,
 			timestamp: Date.now(),
 			private:
