@@ -49,11 +49,23 @@ export default new ClientEvent({
 					break;
 			}
 
-			if (!commandName) return console.error('Unknown interaction type');
+			commandName = commandName?.split(' ').at(0)?.trim();
+
+			if (!commandName)
+				return console.error(
+					'[Interaction Handler] Unknown interaction type or no command name:',
+					InteractionType[interaction.type],
+				);
 
 			const command = client.commands.get(commandName);
 
-			if (!command) return console.error('Unknown interaction type');
+			if (!command)
+				return console.error(
+					'[Interaction Handler] Unknown command:',
+					commandName,
+					'Interaction type:',
+					InteractionType[interaction.type],
+				);
 
 			let handler;
 

@@ -5,6 +5,7 @@ import { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
 import ManageAltCommand from './manage-alt.command';
 import type { APIAccount } from '../types/APIAccount';
 import { AltStatus } from '../types/Alt';
+import type { HandleComponentInteractionContext } from '../classes/HandleInteractionContext';
 
 export default class PublishAltCommand extends Command {
 	id = 'publish-alt';
@@ -54,7 +55,7 @@ export default class PublishAltCommand extends Command {
 			.trim();
 
 		const bannedDisplayNames = [
-			'tnf Angel',
+			'tnfAngel',
 			'BotMM',
 			'.Gamebot',
 			'Gamebot.',
@@ -117,12 +118,7 @@ export default class PublishAltCommand extends Command {
 
 		client.managers.altManager.addAlt(currentGuildId, alt);
 
-		await interaction.editReply({
-			embeds: [ManageAltCommand.getAltPanelEmbed(this.client, alt)],
-		});
-
 		await interaction.followUp({
-			content: `${interaction.user}:`,
 			embeds: [
 				ManageAltCommand.getAltStatusEmbed(
 					client,
@@ -131,5 +127,18 @@ export default class PublishAltCommand extends Command {
 				),
 			],
 		});
+
+		await interaction.editReply({
+			embeds: [
+				ManageAltCommand.getAltPanelEmbed(this.client, alt, alt.status),
+			],
+			components: [ManageAltCommand.getAltPanelComponents(alt.status)],
+		});
+	}
+
+	public override async handleComponentInteraction({
+		interaction,
+	}: HandleComponentInteractionContext): Promise<any> {
+		await ManageAltCommand.handlePanel(this.client, interaction);
 	}
 }
