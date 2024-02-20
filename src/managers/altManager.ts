@@ -48,6 +48,25 @@ export class AltManager {
 		return { color, emoji };
 	}
 
+	getExternalAuths(alt: Alt) {
+		return [
+			alt.github &&
+				`${Emojis.Github} ${this.client.util.toCode(alt.github)}`,
+			alt.twitch &&
+				`${Emojis.Twitch} ${this.client.util.toCode(alt.twitch)}`,
+			alt.steam &&
+				`${Emojis.Steam} ${this.client.util.toCode(alt.steam)}`,
+			alt.psn &&
+				`${Emojis.Psn} ${this.client.util.toCode((alt.psn))}`,
+			alt.xbl &&
+				`${Emojis.Xbl} ${this.client.util.toCode((alt.xbl))}`,
+			alt.nintendo &&
+				`${Emojis.Nintendo} ${this.client.util.toCode(alt.nintendo)}`,
+		]
+			.filter((e) => e)
+			.join(' ');
+	}
+
 	setStatus(guildId: string | null, alt: Alt, status: AltStatus) {
 		this.removeAlt(guildId, alt.userId);
 

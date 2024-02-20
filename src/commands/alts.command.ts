@@ -11,7 +11,6 @@ import { Command } from '../classes/Command';
 import { BotClient } from '../classes/BotClient';
 import type { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
 import { PaginationBuilder, PaginationManager } from 'pagination-manager';
-import type { HandleComponentInteractionContext } from '../classes/HandleInteractionContext';
 import { AltStatus, type Alt } from '../types/Alt';
 
 enum CustomId {
@@ -119,6 +118,9 @@ export default class AltsCommand extends Command {
 
 				const isKnownGid = i !== 0 && lgId === gId;
 
+				const externalAuthString =
+					client.managers.altManager.getExternalAuths(alt);
+
 				return {
 					name: `${
 						isKnownGid || !isGlobal
@@ -134,9 +136,9 @@ export default class AltsCommand extends Command {
 					} ${alt.name} - ${AltStatus[alt.status]}${
 						alt.private ? ` ${Emojis.Private}` : ''
 					}`,
-					value: `${client.util.toRelativeTimestamp(
+					value: `> ${client.util.toRelativeTimestamp(
 						alt.timestamp,
-					)} - by <@${alt.userId}>${
+					)} - by <@${alt.userId}>${externalAuthString ? `\n> ${externalAuthString}` : ''}${
 						i === currentPage.length - 1 ? `\n${Emojis.Blank}` : ''
 					}`,
 				};
@@ -146,7 +148,7 @@ export default class AltsCommand extends Command {
 				.setColor(0x43b581)
 				.setAuthor({
 					iconURL: interaction.guild?.iconURL() ?? undefined,
-					name: 'Available Alts for Bot Lobbies',
+					name: 'Human Alts for Bot Lobbies',
 				})
 				.setDescription(
 					(!isGlobal &&
@@ -275,11 +277,5 @@ export default class AltsCommand extends Command {
 				})
 				.catch(() => null);
 		});
-	}
-
-	public override async handleComponentInteraction(
-		ctx: HandleComponentInteractionContext,
-	): Promise<any> {
-		await ctx.interaction.editReply('sucks');
 	}
 }

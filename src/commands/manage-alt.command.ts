@@ -74,43 +74,32 @@ export default class ManageAltCommand extends Command {
 
 			client.managers.altManager.setStatus(currentGuildId, alt, status);
 
-			return ManageAltCommand.postAltStatus(
-				this.client,
-				status,
-				alt,
-				interaction,
-			);
+			return interaction.reply({
+				embeds: [
+					ManageAltCommand.getAltStatusEmbed(
+						this.client,
+						status,
+						alt,
+					),
+				],
+			});
 		};
 
 		switch (subcommand) {
 			case 'panel': {
-				if (userAlt)
-					return interaction.reply({
-						content: 'You cannot have more than one alt.',
-						ephemeral: true,
-					});
+				if (!userAlt) return;
 
-				const alt = {
-					userId: interaction.user.id,
-					name: interaction.options.getString('name', true),
-					status: AltStatus.Online,
-					timestamp: Date.now(),
-					private:
-						interaction.options.getBoolean('private', false) ??
-						false,
-				};
+				return interaction.reply({
+					embeds: [
+						ManageAltCommand.getAltPanelEmbed(
+							this.client,
 
-				client.managers.altManager.addAlt(currentGuildId, alt);
-
-				await ManageAltCommand.postAltStatus(
-					this.client,
-					AltStatus.Online,
-					alt,
-					interaction,
-				);
-
-				break;
+							userAlt,
+						),
+					],
+				});
 			}
+
 			case 'set-online':
 				await updateAltStatus(AltStatus.Online);
 
@@ -140,51 +129,33 @@ export default class ManageAltCommand extends Command {
 		}
 	}
 
-	static async postAltStatus(
+	public static getAltStatusEmbed(
 		client: BotClient,
 		status: AltStatus,
 		alt: Alt,
-		interaction: ChatInputCommandInteraction,
 	) {
-		if (!alt) return;
-
 		const { color: embedColor, emoji: embedEmoji } =
 			client.managers.altManager.getStatus(status);
 
-		await interaction.reply({
-			embeds: [
-				new EmbedBuilder()
-					.setColor(embedColor)
-					.setDescription(
-						`${embedEmoji} The alt ${client.util.toCode(
-							alt.name,
-						)} is now: **${AltStatus[status]}**`,
-					),
-			],
-		});
+		return new EmbedBuilder()
+			.setColor(embedColor)
+			.setDescription(
+				`${embedEmoji} The alt ${client.util.toCode(
+					alt.name,
+				)} is now: **${AltStatus[status]}**`,
+			);
 	}
 
-	static async postAltPanel(
-		client: BotClient,
-		status: AltStatus,
-		alt: Alt,
-		interaction: ChatInputCommandInteraction,
-	) {
-		if (!alt) return;
-
+	public static getAltPanelEmbed(client: BotClient, alt: Alt) {
 		const { color: embedColor, emoji: embedEmoji } =
-			client.managers.altManager.getStatus(status);
+			client.managers.altManager.getStatus(alt.status);
 
-		await interaction.reply({
-			embeds: [
-				new EmbedBuilder()
-					.setColor(embedColor)
-					.setDescription(
-						`${embedEmoji} The alt ${client.util.toCode(
-							alt.name,
-						)} is now: **${AltStatus[status]}**`,
-					),
-			],
-		});
+		return new EmbedBuilder()
+			.setColor(embedColor)
+			.setDescription(
+				`${embedEmoji} The alt ${client.util.toCode(
+					alt.name,
+				)} is now: **${AltStatus[alt.status]}**`,
+			);
 	}
 }

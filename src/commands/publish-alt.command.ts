@@ -21,7 +21,7 @@ export default class PublishAltCommand extends Command {
 							'The Epic Games display name of your alt',
 						)
 						.setRequired(true)
-						.setMaxLength(64),
+						.setMaxLength(32),
 				)
 				.addBooleanOption((o) =>
 					o
@@ -49,10 +49,12 @@ export default class PublishAltCommand extends Command {
 				ephemeral: true,
 			});
 
-		const displayName = interaction.options.getString('display-name', true);
+		const userDisplayName = interaction.options
+			.getString('display-name', true)
+			.trim();
 
 		const bannedDisplayNames = [
-			'tnfAngel',
+			'tnf Angel',
 			'BotMM',
 			'.Gamebot',
 			'Gamebot.',
@@ -61,7 +63,7 @@ export default class PublishAltCommand extends Command {
 
 		if (
 			bannedDisplayNames.some((dp) =>
-				dp.toLowerCase().includes(displayName.toLowerCase()),
+				dp.toLowerCase().includes(userDisplayName.toLowerCase()),
 			)
 		)
 			return interaction.reply({
@@ -69,47 +71,65 @@ export default class PublishAltCommand extends Command {
 				ephemeral: true,
 			});
 
+		await interaction.deferReply({ ephemeral: true });
+
 		const user = await ky
 			.get(
-				`https://egs.jaren.wtf/api/accounts/displayName/${displayName}`,
+				`https://egs.jaren.wtf/api/accounts/displayName/${encodeURIComponent(userDisplayName)}`,
 			)
 			.json<APIAccount>()
 			.catch(() => null);
 
-		console.log(user);
-
 		if (!user)
-			return interaction.reply({
+			return interaction.editReply({
 				content:
 					'Invalid alt name provided. Please try again with the Epic Games name of your alt.',
-				ephemeral: true,
 			});
 
 		if (user?.accountStatus !== 'ACTIVE')
-			return interaction.reply({
+			return interaction.editReply({
 				content: 'The account you provided is disabled or deleted.',
-				ephemeral: true,
 			});
 
-		const userId = user.id;
+		const epicUserId = user.id;
+
+		const displayName = user.displayName;
+
+		const { github, twitch, steam, psn, xbl, nintendo } =
+			user.externalAuths ?? {};
 
 		const alt = {
 			guildId: currentGuildId,
 			userId: interaction.user.id,
-			name: displayName,
+			epicUserId,
+			name: displayName || userDisplayName,
 			status: AltStatus.Online,
 			timestamp: Date.now(),
 			private:
 				interaction.options.getBoolean('private', false) ?? undefined,
+			github: github?.externalDisplayName,
+			twitch: twitch?.externalDisplayName,
+			steam: steam?.externalDisplayName,
+			psn: psn?.externalDisplayName,
+			xbl: xbl?.externalDisplayName,
+			nintendo: nintendo ? nintendo?.externalDisplayName : displayName,
 		};
 
 		client.managers.altManager.addAlt(currentGuildId, alt);
 
-		await ManageAltCommand.postAltStatus(
-			client,
-			AltStatus.Online,
-			alt,
-			interaction,
-		);
+		await interaction.editReply({
+			embeds: [ManageAltCommand.getAltPanelEmbed(this.client, alt)],
+		});
+
+		await interaction.followUp({
+			content: `${interaction.user}:`,
+			embeds: [
+				ManageAltCommand.getAltStatusEmbed(
+					client,
+					AltStatus.Online,
+					alt,
+				),
+			],
+		});
 	}
 }
