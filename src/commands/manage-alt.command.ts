@@ -202,7 +202,10 @@ export default class ManageAltCommand extends Command {
 			.setDescription(
 				`${embedEmoji} The alt ${client.util.toCode(
 					alt.name,
-				)} is currently: **${AltStatus[status]}**\n> Press the buttons to update the status.`,
+				)} is currently: **${AltStatus[status]}**\n> External accounts: ${
+					client.managers.altManager.getExternalAuths(alt) ||
+					'No external accounts associated'
+				}\n> Press the buttons to update the status.`,
 			);
 	}
 

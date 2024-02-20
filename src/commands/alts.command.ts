@@ -176,6 +176,7 @@ export default class AltsCommand extends Command {
 										paginationManager.pagesSize,
 									)?.length
 								} Alts registered`,
+								iconURL: client.user?.avatarURL() ?? undefined,
 							}
 						: null,
 				)

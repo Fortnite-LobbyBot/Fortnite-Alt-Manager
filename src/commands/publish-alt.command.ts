@@ -28,7 +28,15 @@ export default class PublishAltCommand extends Command {
 					o
 						.setName('private')
 						.setDescription(
-							'Should the alt be displayed in other Discord servers?',
+							'Should the alt be displayed in other Discord servers? (False by default)',
+						)
+						.setRequired(false),
+				)
+				.addBooleanOption((o) =>
+					o
+						.setName('hide-external')
+						.setDescription(
+							'Should the alt external account names be hidden? (False by default)',
 						)
 						.setRequired(false),
 				),
@@ -40,6 +48,16 @@ export default class PublishAltCommand extends Command {
 
 		const currentGuildId = interaction.guildId;
 
+		const userDisplayName = interaction.options
+			.getString('display-name', true)
+			.trim();
+
+		const privateUser =
+			interaction.options.getBoolean('private', false) ?? false;
+
+		const hideExternal =
+			interaction.options.getBoolean('hide-external', false) ?? false;
+
 		const userAlt = client.alts
 			.get(currentGuildId)
 			?.findLast((a) => a.userId === interaction.user.id);
@@ -49,10 +67,6 @@ export default class PublishAltCommand extends Command {
 				content: 'You cannot have more than one alt.',
 				ephemeral: true,
 			});
-
-		const userDisplayName = interaction.options
-			.getString('display-name', true)
-			.trim();
 
 		const bannedDisplayNames = [
 			'tnfAngel',
@@ -97,7 +111,7 @@ export default class PublishAltCommand extends Command {
 		const displayName = user.displayName;
 
 		const { github, twitch, steam, psn, xbl, nintendo } =
-			user.externalAuths ?? {};
+			(hideExternal ? undefined : user.externalAuths) ?? {};
 
 		const alt = {
 			guildId: currentGuildId,
@@ -106,14 +120,17 @@ export default class PublishAltCommand extends Command {
 			name: displayName || userDisplayName,
 			status: AltStatus.Online,
 			timestamp: Date.now(),
-			private:
-				interaction.options.getBoolean('private', false) ?? undefined,
+			private: privateUser,
 			github: github?.externalDisplayName,
 			twitch: twitch?.externalDisplayName,
 			steam: steam?.externalDisplayName,
 			psn: psn?.externalDisplayName,
 			xbl: xbl?.externalDisplayName,
-			nintendo: nintendo ? nintendo?.externalDisplayName : displayName,
+			nintendo: hideExternal
+				? undefined
+				: nintendo
+					? nintendo?.externalDisplayName
+					: displayName,
 		};
 
 		client.managers.altManager.addAlt(currentGuildId, alt);
