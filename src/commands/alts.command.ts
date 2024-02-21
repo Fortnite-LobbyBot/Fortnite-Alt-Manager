@@ -114,6 +114,8 @@ export default class AltsCommand extends Command {
 			const fields = client.util.reverseMap(currentPage, (alt, i, ri) => {
 				const gId = alt.guildId ?? currentGuildId;
 
+				const isCurrentGuildId = gId === currentGuildId;
+
 				const lgId = currentPage.at(ri + 1)?.guildId ?? currentGuildId;
 
 				const isKnownGid = i !== 0 && lgId === gId;
@@ -138,7 +140,7 @@ export default class AltsCommand extends Command {
 					}`,
 					value: `> ${Emojis.Timer} ${client.util.toRelativeTimestamp(
 						alt.timestamp,
-					)} - by <@${alt.userId}>${externalAuthString ? `\n> ${externalAuthString}` : ''}${
+					)} - by ${isCurrentGuildId ? `<@${alt.userId}>` : client.util.toBold(`@${alt.discordUsername}`)}${externalAuthString ? `\n> ${externalAuthString}` : ''}${
 						i === currentPage.length - 1 ? `\n${Emojis.Blank}` : ''
 					}`,
 				};

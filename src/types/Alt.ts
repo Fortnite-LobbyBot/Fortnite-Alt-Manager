@@ -3,6 +3,7 @@ export interface Alt {
 	userId: string;
 	epicUserId?: string;
 	name: string;
+	discordUsername: string;
 	status: AltStatus;
 	timestamp: number;
 	private?: boolean;

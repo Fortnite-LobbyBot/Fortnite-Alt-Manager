@@ -205,7 +205,7 @@ export default class ManageAltCommand extends Command {
 				`${embedEmoji} The alt ${Emojis.Epic} ${client.util.toBold(
 					alt.name,
 				)} is currently: ${client.util.toBold(AltStatus[status])}\n\n> ${Emojis.User} External accounts: ${
-					client.managers.altManager.getExternalAuths(alt) ||
+					client.managers.altManager.getExternalAuths(alt, true) ||
 					'No external accounts associated'
 				}\n> ${Emojis.Question} Press the buttons to update the status.`,
 			);
