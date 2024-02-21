@@ -4,56 +4,56 @@ import { CommandManager } from '../managers/commandManager';
 import { EventHandler } from '../handlers/eventHandler';
 import { EventManager } from '../managers/eventManager';
 import { AltManager } from '../managers/altManager';
-
-export interface Alt {
-	guildId?: string;
-	userId: string;
-	name: string;
-	status: AltStatus;
-	timestamp: number;
-	private?: boolean;
-}
-
-export enum AltStatus {
-	Online = 0,
-	Busy = 1,
-	Idle = 2,
-	Offline = 3,
-}
+import type { Command } from './Command';
+import { CommandHandler } from '../handlers/commandHandler';
+import type { Alt } from '../types/Alt';
 
 export class BotClient extends Client {
-	util = new ClientUtil();
+	public util = new ClientUtil();
 
-	eventHandler = new EventHandler(this);
-
-	managers = {
+	public managers = {
 		altManager: new AltManager(this),
 		commandManager: new CommandManager(),
 		eventManager: new EventManager(),
 	};
 
-	alts = new Map<string, Alt[]>();
+	public commands = new Map<string, Command>();
+
+	public alts = new Map<string | null, Alt[]>();
+
+	public cooldowns = new Map<string, number>();
+
+	private eventHandler = new EventHandler(this);
+
+	private commandHandler = new CommandHandler(this);
 
 	async setup() {
-		const token = process.env['TOKEN'] as string;
+		const token = process.env['TOKEN'];
+		const clientId = process.env['CLIENT_ID'];
 
-		super.login(token);
+		if (!token || !clientId)
+			return console.error(
+				`${
+					token ? 'CLIENT_ID' : 'TOKEN'
+				} not specified. Please add it to your .env.${
+					process.env['NODE_ENV'] ?? 'development'
+				} file`,
+			);
 
-		this.eventHandler.start();
+		await super.login(token);
+
+		this.eventHandler.setup();
+
+		this.commandHandler.setup();
+
+		const commands = [...this.commands.values()];
 
 		const rest = new REST().setToken(token);
 
-		await rest.put(
-			Routes.applicationCommands(process.env['CLIENT_ID'] ?? ''),
-			{
-				body: [
-					...this.managers.commandManager
-						.getCommands()
-						.map((cmd) => cmd.getConfig({ client: this }).slash),
-				],
-			}
-		);
+		await rest.put(Routes.applicationCommands(clientId), {
+			body: commands.map((cmd) => cmd.getConfig({}).slash),
+		});
 
-		console.log('Posted commands');
+		console.log('Posted', commands.length, 'commands');
 	}
 }
