@@ -18,7 +18,7 @@ export class ClientUtil {
 	}
 
 	public toBold(text: string): string {
-		return `**${text.toString()}**`;
+		return `**${text.toString().replaceAll('**', '\\*\\**`')}**`;
 	}
 
 	public toRelativeTimestamp(timestamp: number): string {
@@ -33,6 +33,10 @@ export class ClientUtil {
 				return cb(cArr[ri] as T, i, ri);
 			}) ?? []
 		);
+	}
+
+	public getEmojiId(emoji: string) {
+		return emoji.split(':').at(2)?.slice(0, -1) || emoji;
 	}
 
 	public chunkArray<ArrayType>(

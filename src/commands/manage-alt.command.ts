@@ -12,7 +12,7 @@ import { Command } from '../classes/Command';
 import { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
 import { BotClient } from '../classes/BotClient';
 import { AltStatus, type Alt } from '../types/Alt';
-import { Emojis } from '../constants';
+import { CommandMentions, Emojis } from '../constants';
 import type { HandleComponentInteractionContext } from '../classes/HandleInteractionContext';
 
 enum CustomId {
@@ -28,7 +28,7 @@ export default class ManageAltCommand extends Command {
 	getConfig() {
 		return {
 			slash: new SlashCommandBuilder()
-				.setName('manage-alt')
+				.setName(this.id)
 				.setDescription('Manage your alts.')
 				.addSubcommand((c) =>
 					c
@@ -78,8 +78,7 @@ export default class ManageAltCommand extends Command {
 
 		if (!userAlt)
 			return interaction.reply({
-				content:
-					'You need to publish an alt first. Use the command: </manage-alt add-alt:1206685461246910474>.',
+				content: `You need to publish an alt first. Use the command: ${CommandMentions.PublishAlt}.`,
 				ephemeral: true,
 			});
 
@@ -96,7 +95,10 @@ export default class ManageAltCommand extends Command {
 						),
 					],
 					components: [
-						ManageAltCommand.getAltPanelComponents(userAlt.status),
+						ManageAltCommand.getAltPanelComponents(
+							client,
+							userAlt.status,
+						),
 					],
 					ephemeral: true,
 				});
@@ -183,7 +185,7 @@ export default class ManageAltCommand extends Command {
 		return new EmbedBuilder()
 			.setColor(embedColor)
 			.setDescription(
-				`${embedEmoji} The alt ${Emojis.Epic} ${client.util.toCode(
+				`${embedEmoji} The alt ${Emojis.Epic} ${client.util.toBold(
 					alt.name,
 				)} by <@${alt.userId}> is now: **${AltStatus[status]}**`,
 			);
@@ -200,9 +202,9 @@ export default class ManageAltCommand extends Command {
 		return new EmbedBuilder()
 			.setColor(embedColor)
 			.setDescription(
-				`${embedEmoji} The alt ${Emojis.Epic} ${client.util.toCode(
+				`${embedEmoji} The alt ${Emojis.Epic} ${client.util.toBold(
 					alt.name,
-				)} is currently: **${AltStatus[status]}**\n\n> ${Emojis.User} External accounts: ${
+				)} is currently: ${client.util.toBold(AltStatus[status])}\n\n> ${Emojis.User} External accounts: ${
 					client.managers.altManager.getExternalAuths(alt) ||
 					'No external accounts associated'
 				}\n> ${Emojis.Question} Press the buttons to update the status.`,
@@ -210,6 +212,7 @@ export default class ManageAltCommand extends Command {
 	}
 
 	public static getAltPanelComponents(
+		client: BotClient,
 		currentStatus: AltStatus,
 		disableAll = false,
 	) {
@@ -218,22 +221,22 @@ export default class ManageAltCommand extends Command {
 				.setCustomId(CustomId.PanelOnline)
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentStatus === AltStatus.Online)
-				.setEmoji(Emojis.Online),
+				.setEmoji(client.util.getEmojiId(Emojis.Online)),
 			new ButtonBuilder()
 				.setCustomId(CustomId.PanelBusy)
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentStatus === AltStatus.Busy)
-				.setEmoji(Emojis.Busy),
+				.setEmoji(client.util.getEmojiId(Emojis.Busy)),
 			new ButtonBuilder()
 				.setCustomId(CustomId.PanelIdle)
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentStatus === AltStatus.Idle)
-				.setEmoji(Emojis.Idle),
+				.setEmoji(client.util.getEmojiId(Emojis.Idle)),
 			new ButtonBuilder()
 				.setCustomId(CustomId.PanelOffline)
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentStatus === AltStatus.Offline)
-				.setEmoji(Emojis.Offline),
+				.setEmoji(client.util.getEmojiId(Emojis.Offline)),
 		);
 
 		if (disableAll) {
@@ -261,8 +264,7 @@ export default class ManageAltCommand extends Command {
 
 		if (!userAlt)
 			return interaction.reply({
-				content:
-					'You need to publish an alt first. Use the command: </manage-alt add-alt:1206685461246910474>.',
+				content: `You need to publish an alt first. Use the command: ${CommandMentions.PublishAlt}.`,
 				ephemeral: true,
 			});
 
@@ -289,7 +291,9 @@ export default class ManageAltCommand extends Command {
 			embeds: [
 				ManageAltCommand.getAltPanelEmbed(client, userAlt, status),
 			],
-			components: [ManageAltCommand.getAltPanelComponents(status)],
+			components: [
+				ManageAltCommand.getAltPanelComponents(client, status),
+			],
 		});
 
 		return interaction.followUp({
