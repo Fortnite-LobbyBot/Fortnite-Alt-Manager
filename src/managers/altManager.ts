@@ -48,23 +48,23 @@ export class AltManager {
 		return { color, emoji };
 	}
 
-	getExternalAuths(alt: Alt) {
+	getExternalAuths(alt: Alt, bold?: boolean, separator = ' ') {
 		return [
 			alt.github &&
-				`${Emojis.Github} ${this.client.util.toCode(alt.github)}`,
+				`${Emojis.Github} ${this.client.util[bold ? 'toBold' : 'toCode'](alt.github)}`,
 			alt.twitch &&
-				`${Emojis.Twitch} ${this.client.util.toCode(alt.twitch)}`,
+				`${Emojis.Twitch} ${this.client.util[bold ? 'toBold' : 'toCode'](alt.twitch)}`,
 			alt.steam &&
-				`${Emojis.Steam} ${this.client.util.toCode(alt.steam)}`,
+				`${Emojis.Steam} ${this.client.util[bold ? 'toBold' : 'toCode'](alt.steam)}`,
 			alt.psn &&
-				`${Emojis.Psn} ${this.client.util.toCode((alt.psn))}`,
+				`${Emojis.Psn} ${this.client.util[bold ? 'toBold' : 'toCode'](alt.psn)}`,
 			alt.xbl &&
-				`${Emojis.Xbl} ${this.client.util.toCode((alt.xbl))}`,
+				`${Emojis.Xbl} ${this.client.util[bold ? 'toBold' : 'toCode'](alt.xbl)}`,
 			alt.nintendo &&
-				`${Emojis.Nintendo} ${this.client.util.toCode(alt.nintendo)}`,
+				`${Emojis.Nintendo} ${this.client.util[bold ? 'toBold' : 'toCode'](alt.nintendo)}`,
 		]
 			.filter((e) => e)
-			.join(' ');
+			.join(separator);
 	}
 
 	setStatus(guildId: string | null, alt: Alt, status: AltStatus) {

@@ -183,7 +183,7 @@ export default class ManageAltCommand extends Command {
 		return new EmbedBuilder()
 			.setColor(embedColor)
 			.setDescription(
-				`${embedEmoji} The alt ${client.util.toCode(
+				`${embedEmoji} The alt ${Emojis.Epic} ${client.util.toCode(
 					alt.name,
 				)} by <@${alt.userId}> is now: **${AltStatus[status]}**`,
 			);
@@ -200,12 +200,12 @@ export default class ManageAltCommand extends Command {
 		return new EmbedBuilder()
 			.setColor(embedColor)
 			.setDescription(
-				`${embedEmoji} The alt ${client.util.toCode(
+				`${embedEmoji} The alt ${Emojis.Epic} ${client.util.toCode(
 					alt.name,
-				)} is currently: **${AltStatus[status]}**\n> External accounts: ${
+				)} is currently: **${AltStatus[status]}**\n\n> ${Emojis.User} External accounts: ${
 					client.managers.altManager.getExternalAuths(alt) ||
 					'No external accounts associated'
-				}\n> Press the buttons to update the status.`,
+				}\n> ${Emojis.Question} Press the buttons to update the status.`,
 			);
 	}
 

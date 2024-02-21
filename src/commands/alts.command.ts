@@ -229,7 +229,7 @@ export default class AltsCommand extends Command {
 			return actionRow;
 		};
 
-		const message = await interaction
+		const inRes = await interaction
 			.reply({
 				embeds: [getPageEmbed()],
 				components: [getPageActionRow()],
@@ -237,7 +237,7 @@ export default class AltsCommand extends Command {
 			})
 			.catch(() => null);
 
-		const collector = message?.createMessageComponentCollector({
+		const collector = inRes?.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			time: 300000,
 		});

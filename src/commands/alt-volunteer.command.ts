@@ -1,20 +1,35 @@
 import ky from 'ky';
-import { SlashCommandBuilder } from 'discord.js';
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	ComponentType,
+	EmbedBuilder,
+	SlashCommandBuilder,
+} from 'discord.js';
 import { Command } from '../classes/Command';
 import { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
 import ManageAltCommand from './manage-alt.command';
 import type { APIAccount } from '../types/APIAccount';
-import { AltStatus } from '../types/Alt';
+import { AltStatus, type Alt } from '../types/Alt';
 import type { HandleComponentInteractionContext } from '../classes/HandleInteractionContext';
+import { Emojis } from '../constants';
+
+enum CustomId {
+	Accept = 'accept',
+	Decline = 'decline',
+}
 
 export default class PublishAltCommand extends Command {
-	id = 'publish-alt';
+	id = 'alt-volunteer';
 
 	getConfig() {
 		return {
 			slash: new SlashCommandBuilder()
-				.setName('publish-alt')
-				.setDescription('Publish your alt to the system')
+				.setName('alt-volunteer')
+				.setDescription(
+					'Help others by publishing the name of your alt',
+				)
 				.addStringOption((o) =>
 					o
 						.setName('display-name')
@@ -28,7 +43,7 @@ export default class PublishAltCommand extends Command {
 					o
 						.setName('private')
 						.setDescription(
-							'Should the alt be displayed in other Discord servers? (False by default)',
+							'Should the alt be hidden in other Discord servers? (False by default)',
 						)
 						.setRequired(false),
 				)
@@ -74,6 +89,8 @@ export default class PublishAltCommand extends Command {
 			'.Gamebot',
 			'Gamebot.',
 			'bot-lobbies',
+			'.bot lobbies',
+			'Lobby Bots ',
 		];
 
 		if (
@@ -113,7 +130,7 @@ export default class PublishAltCommand extends Command {
 		const { github, twitch, steam, psn, xbl, nintendo } =
 			(hideExternal ? undefined : user.externalAuths) ?? {};
 
-		const alt = {
+		const alt: Alt = {
 			guildId: currentGuildId,
 			userId: interaction.user.id,
 			epicUserId,
@@ -133,9 +150,61 @@ export default class PublishAltCommand extends Command {
 					: displayName,
 		};
 
+		const ea = client.managers.altManager.getExternalAuths(
+			alt,
+			false,
+			' | ',
+		);
+
+		const fwUp = await interaction.followUp({
+			ephemeral: true,
+			embeds: [
+				new EmbedBuilder()
+					.setColor(0x248046)
+					.setAuthor({
+						iconURL: interaction.user.avatarURL() ?? undefined,
+						name: 'Serve alt account as a volunteer',
+					})
+					.setDescription(
+						`${Emojis.Question} **Are you sure you want to help others with bot lobbies using this account?**\n\n${Emojis.User} Display names: ${privateUser ? ` ${Emojis.Private}` : ''}${Emojis.Epic} ${client.util.toCode(alt.name)} ${hideExternal ? `| ${Emojis.Warning} External auths hidden` : ea ? `| ${ea}` : ''}\n\n> ${Emojis.Warning} Please **MAKE SURE** that you are adding only **YOUR** account.`,
+					),
+			],
+			components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setCustomId(CustomId.Accept)
+						.setStyle(ButtonStyle.Success)
+						.setLabel('Yes, I want to help others!')
+						.setEmoji(Emojis.Like),
+					new ButtonBuilder()
+						.setCustomId(CustomId.Decline)
+						.setStyle(ButtonStyle.Secondary)
+						.setLabel('Nevermind')
+						.setEmoji(Emojis.Cancel),
+				),
+			],
+		});
+
+		const rsp = await fwUp
+			?.awaitMessageComponent({
+				componentType: ComponentType.Button,
+				time: 30_000,
+			})
+			.catch(() => null);
+
+		if (!rsp) return interaction.editReply({ components: [] });
+
+		if (rsp.customId === CustomId.Decline)
+			return rsp.update({
+				content: 'Thanks for your answer.',
+				components: [],
+				embeds: [],
+			});
+
 		client.managers.altManager.addAlt(currentGuildId, alt);
 
 		await interaction.followUp({
+			ephemeral: false,
 			embeds: [
 				ManageAltCommand.getAltStatusEmbed(
 					client,
@@ -145,9 +214,9 @@ export default class PublishAltCommand extends Command {
 			],
 		});
 
-		await interaction.editReply({
+		await rsp.update({
 			embeds: [
-				ManageAltCommand.getAltPanelEmbed(this.client, alt, alt.status),
+				ManageAltCommand.getAltPanelEmbed(client, alt, alt.status),
 			],
 			components: [ManageAltCommand.getAltPanelComponents(alt.status)],
 		});
@@ -156,6 +225,10 @@ export default class PublishAltCommand extends Command {
 	public override async handleComponentInteraction({
 		interaction,
 	}: HandleComponentInteractionContext): Promise<any> {
-		await ManageAltCommand.handlePanel(this.client, interaction);
+		if (
+			interaction.customId !== CustomId.Accept &&
+			interaction.customId !== CustomId.Decline
+		)
+			await ManageAltCommand.handlePanel(this.client, interaction);
 	}
 }

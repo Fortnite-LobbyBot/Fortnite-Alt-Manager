@@ -6,7 +6,7 @@ export class ClientUtil {
 	public toCodeBlock(code: string, text: string): string {
 		return `\`\`\`${code.replace(/```/g, '')}\n${text.replaceAll(
 			'```',
-			'\\`\\`\\`'
+			'\\`\\`\\`',
 		)}\n\`\`\``;
 	}
 
@@ -15,6 +15,10 @@ export class ClientUtil {
 			.toString()
 			.replaceAll('`', '\\`')
 			.replaceAll(/[\n\r]/g, '')}\``;
+	}
+
+	public toBold(text: string): string {
+		return `**${text.toString()}**`;
 	}
 
 	public toRelativeTimestamp(timestamp: number): string {
@@ -34,7 +38,7 @@ export class ClientUtil {
 	public chunkArray<ArrayType>(
 		targetArray: ArrayType[],
 		chunkSize: number,
-		fromEnd: boolean = false
+		fromEnd: boolean = false,
 	): ArrayType[][] {
 		const result = [];
 		const arrayLength = targetArray.length;
