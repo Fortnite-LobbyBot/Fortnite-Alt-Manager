@@ -26,5 +26,5 @@ export enum Emojis {
 }
 
 export enum CommandMentions {
-	PublishAlt = '</manage-alt add-alt:1206685461246910474>',
+	PublishAlt = '</publish-alt-volunteer:1209992052914524201>',
 }
