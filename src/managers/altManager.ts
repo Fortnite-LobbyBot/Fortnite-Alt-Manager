@@ -48,7 +48,7 @@ export class AltManager {
 		return { color, emoji };
 	}
 
-	getExternalAuths(alt: Alt, bold?: boolean, separator = ' ') {
+	getExternalAuths(alt: Alt, bold?: boolean, separator = ' | ') {
 		return [
 			alt.github &&
 				`${Emojis.Github} ${this.client.util[bold ? 'toBold' : 'toCode'](alt.github)}`,

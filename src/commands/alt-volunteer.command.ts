@@ -21,12 +21,12 @@ enum CustomId {
 }
 
 export default class PublishAltCommand extends Command {
-	id = 'alt-volunteer';
+	id = 'publish-alt-volunteer';
 
 	getConfig() {
 		return {
 			slash: new SlashCommandBuilder()
-				.setName('alt-volunteer')
+				.setName(this.id)
 				.setDescription(
 					'Help others by publishing the name of your alt',
 				)
@@ -135,6 +135,7 @@ export default class PublishAltCommand extends Command {
 			userId: interaction.user.id,
 			epicUserId,
 			name: displayName || userDisplayName,
+			discordUsername: interaction.user.username,
 			status: AltStatus.Online,
 			timestamp: Date.now(),
 			private: privateUser,
@@ -146,15 +147,11 @@ export default class PublishAltCommand extends Command {
 			nintendo: hideExternal
 				? undefined
 				: nintendo
-					? nintendo?.externalDisplayName
-					: displayName,
+					? nintendo.externalDisplayName ?? displayName
+					: undefined,
 		};
 
-		const ea = client.managers.altManager.getExternalAuths(
-			alt,
-			false,
-			' | ',
-		);
+		const ea = client.managers.altManager.getExternalAuths(alt, true);
 
 		const fwUp = await interaction.followUp({
 			ephemeral: true,
@@ -166,7 +163,7 @@ export default class PublishAltCommand extends Command {
 						name: 'Serve alt account as a volunteer',
 					})
 					.setDescription(
-						`${Emojis.Question} **Are you sure you want to help others with bot lobbies using this account?**\n\n${Emojis.User} Display names: ${privateUser ? ` ${Emojis.Private}` : ''}${Emojis.Epic} ${client.util.toCode(alt.name)} ${hideExternal ? `| ${Emojis.Warning} External auths hidden` : ea ? `| ${ea}` : ''}\n\n> ${Emojis.Warning} Please **MAKE SURE** that you are adding only **YOUR** account.`,
+						`${Emojis.Question} **Are you sure you want to help others with bot lobbies using this account?**\n\n${Emojis.User} Display names: ${privateUser ? ` ${Emojis.Private}` : ''}${Emojis.Epic} ${client.util.toBold(alt.name)} ${hideExternal ? `| ${Emojis.Warning} External accounts hidden` : ea ? `| ${ea}` : ''}\n\n> ${Emojis.Warning} Please **MAKE SURE** that you are adding only **YOUR** account.`,
 					),
 			],
 			components: [
@@ -175,12 +172,12 @@ export default class PublishAltCommand extends Command {
 						.setCustomId(CustomId.Accept)
 						.setStyle(ButtonStyle.Success)
 						.setLabel('Yes, I want to help others!')
-						.setEmoji(Emojis.Like),
+						.setEmoji(client.util.getEmojiId(Emojis.Like)),
 					new ButtonBuilder()
 						.setCustomId(CustomId.Decline)
 						.setStyle(ButtonStyle.Secondary)
 						.setLabel('Nevermind')
-						.setEmoji(Emojis.Cancel),
+						.setEmoji(client.util.getEmojiId(Emojis.Cancel)),
 				),
 			],
 		});
@@ -218,7 +215,9 @@ export default class PublishAltCommand extends Command {
 			embeds: [
 				ManageAltCommand.getAltPanelEmbed(client, alt, alt.status),
 			],
-			components: [ManageAltCommand.getAltPanelComponents(alt.status)],
+			components: [
+				ManageAltCommand.getAltPanelComponents(client, alt.status),
+			],
 		});
 	}
 

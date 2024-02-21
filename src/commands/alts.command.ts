@@ -6,7 +6,7 @@ import {
 	EmbedBuilder,
 	SlashCommandBuilder,
 } from 'discord.js';
-import { Emojis } from '../constants';
+import { CommandMentions, Emojis } from '../constants';
 import { Command } from '../classes/Command';
 import { BotClient } from '../classes/BotClient';
 import type { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
@@ -27,7 +27,7 @@ export default class AltsCommand extends Command {
 	getConfig() {
 		return {
 			slash: new SlashCommandBuilder()
-				.setName('alts')
+				.setName(this.id)
 				.setDescription('View the available alts for bot lobbies.')
 				.addBooleanOption((o) =>
 					o
@@ -114,12 +114,14 @@ export default class AltsCommand extends Command {
 			const fields = client.util.reverseMap(currentPage, (alt, i, ri) => {
 				const gId = alt.guildId ?? currentGuildId;
 
+				const isCurrentGuildId = gId === currentGuildId;
+
 				const lgId = currentPage.at(ri + 1)?.guildId ?? currentGuildId;
 
 				const isKnownGid = i !== 0 && lgId === gId;
 
 				const externalAuthString =
-					client.managers.altManager.getExternalAuths(alt);
+					client.managers.altManager.getExternalAuths(alt, true);
 
 				return {
 					name: `${
@@ -136,9 +138,9 @@ export default class AltsCommand extends Command {
 					} ${alt.name} - ${AltStatus[alt.status]}${
 						alt.private ? ` ${Emojis.Private}` : ''
 					}`,
-					value: `> ${client.util.toRelativeTimestamp(
+					value: `> ${Emojis.Timer} ${client.util.toRelativeTimestamp(
 						alt.timestamp,
-					)} - by <@${alt.userId}>${externalAuthString ? `\n> ${externalAuthString}` : ''}${
+					)} - by ${isCurrentGuildId ? `<@${alt.userId}>` : client.util.toBold(`@${alt.discordUsername}`)}${externalAuthString ? `\n> ${externalAuthString}` : ''}${
 						i === currentPage.length - 1 ? `\n${Emojis.Blank}` : ''
 					}`,
 				};
@@ -161,7 +163,7 @@ export default class AltsCommand extends Command {
 						: [
 								{
 									name: `${Emojis.User} No alts available right now`,
-									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.\n\n${Emojis.Question} Add your own alt with </manage-alt add-alt:1206685461246910474>.`,
+									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.\n\n${Emojis.Question} Add your own alt with ${CommandMentions.PublishAlt}.`,
 								},
 							],
 				)
@@ -188,21 +190,21 @@ export default class AltsCommand extends Command {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setCustomId(CustomId.FirstPage)
-						.setLabel('<<')
+						.setEmoji(client.util.getEmojiId(Emojis.First))
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(paginationManager.currentPageIndex === 0),
 					new ButtonBuilder()
 						.setCustomId(CustomId.PrevPage)
-						.setLabel('<')
+						.setEmoji(client.util.getEmojiId(Emojis.Prev))
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(paginationManager.currentPageIndex === 0),
 					new ButtonBuilder()
 						.setCustomId(CustomId.Reload)
-						.setEmoji(Emojis.Reload)
+						.setEmoji(client.util.getEmojiId(Emojis.Reload))
 						.setStyle(ButtonStyle.Secondary),
 					new ButtonBuilder()
 						.setCustomId(CustomId.NextPage)
-						.setLabel('>')
+						.setEmoji(client.util.getEmojiId(Emojis.Next))
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(
 							paginationManager.currentPageIndex ===
@@ -210,7 +212,7 @@ export default class AltsCommand extends Command {
 						),
 					new ButtonBuilder()
 						.setCustomId(CustomId.LastPage)
-						.setLabel('>>')
+						.setEmoji(client.util.getEmojiId(Emojis.Last))
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(
 							paginationManager.currentPageIndex ===
