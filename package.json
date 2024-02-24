@@ -11,7 +11,7 @@
     "pretty": "bunx prettier . --write",
     "lint": "bun run lint:tsc",
     "lint:tsc": "bunx tsc --noEmit",
-    "production:build": "bun run build:standalone"
+    "production:build": "bun run build:bundle"
   },
   "main": "index.js",
   "author": "tnfAngel",
