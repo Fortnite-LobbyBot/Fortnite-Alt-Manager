@@ -1,0 +1,69 @@
+# From https://github.com/JSPaste/Backend
+
+name: 'Container'
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - stable
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        if: ${{ github.repository_owner == 'tnfAngel-Development' }}
+        name: 'Build container image'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
+            packages: write
+
+        env:
+            REGISTRY: ghcr.io
+            IMAGE_NAME: ${{ github.repository }}
+
+        steps:
+            - name: 'Checkout'
+              uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+            - name: 'Setup tags'
+              id: setup-tags
+              run: |
+                  TIMESTAMP="$(date +%Y.%m.%d)"
+                  SHA_SHORT="${GITHUB_SHA::7}"
+
+                  TAGS=()
+                  TAGS+=("latest")
+                  TAGS+=("${GITHUB_SHA}")
+                  TAGS+=("${TIMESTAMP}-${SHA_SHORT}")
+
+                  echo "build-tags=${TAGS[*]}" >> $GITHUB_OUTPUT
+
+            - name: 'Build image'
+              id: build-image
+              uses: redhat-actions/buildah-build@c79846fb306beeba490e89fb75d2d1af95831e79 # master
+              with:
+                  archs: amd64
+                  containerfiles: Dockerfile
+                  image: ${{ env.IMAGE_NAME }}
+                  layers: true
+                  tags: ${{ steps.setup-tags.outputs.build-tags }}
+
+            - name: 'Push to GHCR'
+              uses: redhat-actions/push-to-registry@9986a6552bc4571882a4a67e016b17361412b4df # v2.7.1
+              env:
+                  REGISTRY_USER: ${{ github.actor }}
+                  REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+              with:
+                  image: ${{ steps.build-image.outputs.image }}
+                  tags: ${{ steps.build-image.outputs.tags }}
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ env.REGISTRY_USER }}
+                  password: ${{ env.REGISTRY_PASSWORD }}
