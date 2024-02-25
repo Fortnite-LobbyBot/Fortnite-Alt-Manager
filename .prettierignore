@@ -1,6 +1,5 @@
 node_modules/*
-*.json
-*.yml
+*lock.yml
 .prettierignore
 .eslintignore
 .prettierrc
