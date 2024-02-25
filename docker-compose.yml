@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+    bot:
+        image: ghcr.io/tnfangel-development/fortnite-alt-manager:latest
+        env_file: .env.production
+        restart: always
+
+
+
+
