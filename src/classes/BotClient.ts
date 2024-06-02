@@ -6,7 +6,7 @@ import { EventManager } from '../managers/eventManager';
 import { AltManager } from '../managers/altManager';
 import type { Command } from './Command';
 import { CommandHandler } from '../handlers/commandHandler';
-import type { Alt } from '../types/Alt';
+import { AltStatus, type Alt } from '../types/Alt';
 
 export class BotClient extends Client {
 	public util = new ClientUtil();
@@ -33,10 +33,8 @@ export class BotClient extends Client {
 
 		if (!token || !clientId)
 			return console.error(
-				`${
-					token ? 'CLIENT_ID' : 'TOKEN'
-				} not specified. Please add it to your .env.${
-					process.env['NODE_ENV'] ?? 'development'
+				`${token ? 'CLIENT_ID' : 'TOKEN'
+				} not specified. Please add it to your .env.${process.env['NODE_ENV'] ?? 'development'
 				} file`,
 			);
 
@@ -55,5 +53,22 @@ export class BotClient extends Client {
 		});
 
 		console.log('Posted', commands.length, 'commands');
+
+
+		setInterval(() => {
+			console.log('Doing alts cleanup...');
+
+			let cc = 0
+
+			for (const [guildId, alts] of this.alts)
+				for (const alt of alts) {
+					if (alt.timestamp < (Date.now() - 3_600_000)) {
+						this.managers.altManager.setStatus(guildId, alt, AltStatus.Offline);
+						cc++
+					}
+				}
+
+			console.log(`Cleaned ${cc} online alts.`);
+		}, 30_000)
 	}
 }
