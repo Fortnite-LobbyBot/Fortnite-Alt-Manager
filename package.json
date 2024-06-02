@@ -1,6 +1,6 @@
 {
   "name": "alt-manager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BL Alt Manager",
   "scripts": {
     "build": "bun run build:bundle",
