@@ -62,8 +62,15 @@ export class BotClient extends Client {
 
 			for (const [guildId, alts] of this.alts)
 				for (const alt of alts) {
-					if (alt.timestamp < (Date.now() - 3_600_000)) {
+					// 1h
+					if (alt.status !== AltStatus.Offline && alt.timestamp < (Date.now() - 3_600_000)) {
 						this.managers.altManager.setStatus(guildId, alt, AltStatus.Offline);
+						cc++
+					}
+
+					// 7 days
+					if (alt.status === AltStatus.Offline && alt.timestamp < (Date.now() - 604_800_000)) {
+						this.managers.altManager.removeAlt(guildId, alt.userId);
 						cc++
 					}
 				}
