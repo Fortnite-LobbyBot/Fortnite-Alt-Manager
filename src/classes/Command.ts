@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { type SlashCommandOptionsOnlyBuilder, type SlashCommandSubcommandsOnlyBuilder } from 'discord.js';
 import type { BotClient } from './BotClient';
 import type { CommandConfigContext } from './CommandConfigContext';
 import type { CommandHandleRunContext } from './CommandHandleRunContext';
@@ -10,27 +10,12 @@ import type {
 	HandleModalSubmitInteractionContext,
 } from './HandleInteractionContext';
 
-type SlashBuilder = Omit<
-	SlashCommandBuilder,
-	| 'addSubcommandGroup'
-	| 'addSubcommand'
-	| 'addBooleanOption'
-	| 'addUserOption'
-	| 'addChannelOption'
-	| 'addRoleOption'
-	| 'addAttachmentOption'
-	| 'addMentionableOption'
-	| 'addStringOption'
-	| 'addIntegerOption'
-	| 'addNumberOption'
->;
-
 export interface ICommand {
 	readonly id: string;
 	readonly client: BotClient;
 
 	getConfig(ctx: CommandConfigContext): {
-		slash: SlashBuilder;
+		slash: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
 		isHidden?: boolean;
 	};
 
@@ -62,7 +47,7 @@ export abstract class Command implements ICommand {
 	}
 
 	public abstract getConfig(ctx: CommandConfigContext): {
-		slash: SlashBuilder;
+		slash: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
 		isHidden?: boolean;
 	};
 
