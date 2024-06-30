@@ -150,7 +150,7 @@ export default class PublishAltCommand extends Command {
 					new ButtonBuilder()
 						.setCustomId(CustomId.Decline)
 						.setStyle(ButtonStyle.Secondary)
-						.setLabel('Nevermind')
+						.setLabel('Never mind')
 						.setEmoji(client.util.getEmojiId(Emojis.Cancel))
 				)
 			]
