@@ -16,7 +16,7 @@ permissions:
 
 jobs:
     build:
-        if: ${{ github.repository_owner == 'tnfAngel-Development' }}
+        if: ${{ github.repository_owner == 'FNLB-Project' }}
         name: 'Build container image'
         runs-on: ubuntu-latest
         permissions:
