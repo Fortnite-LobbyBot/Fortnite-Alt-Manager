@@ -4,10 +4,7 @@ export class ClientUtil {
 	}
 
 	public toCodeBlock(code: string, text: string): string {
-		return `\`\`\`${code.replace(/```/g, '')}\n${text.replaceAll(
-			'```',
-			'\\`\\`\\`',
-		)}\n\`\`\``;
+		return `\`\`\`${code.replace(/```/g, '')}\n${text.replaceAll('```', '\\`\\`\\`')}\n\`\`\``;
 	}
 
 	public toCode(text: string): string {
@@ -39,11 +36,7 @@ export class ClientUtil {
 		return emoji.split(':').at(2)?.slice(0, -1) || emoji;
 	}
 
-	public chunkArray<ArrayType>(
-		targetArray: ArrayType[],
-		chunkSize: number,
-		fromEnd: boolean = false,
-	): ArrayType[][] {
+	public chunkArray<ArrayType>(targetArray: ArrayType[], chunkSize: number, fromEnd: boolean = false): ArrayType[][] {
 		const result = [];
 		const arrayLength = targetArray.length;
 
@@ -51,8 +44,7 @@ export class ClientUtil {
 			for (let i = arrayLength; i > 0; i -= chunkSize)
 				result.push(targetArray.slice(Math.max(i - chunkSize, 0), i));
 		} else {
-			for (let i = 0; i < arrayLength; i += chunkSize)
-				result.push(targetArray.slice(i, i + chunkSize));
+			for (let i = 0; i < arrayLength; i += chunkSize) result.push(targetArray.slice(i, i + chunkSize));
 		}
 
 		return result;

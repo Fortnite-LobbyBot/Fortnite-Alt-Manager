@@ -1,5 +1,5 @@
+import { existsSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { readdirSync, existsSync } from 'fs';
 import { Command } from '../classes/Command';
 
 export class CommandManager {
@@ -8,14 +8,12 @@ export class CommandManager {
 
 		function searchCommands(path: string) {
 			const commandsPath = join(__dirname, path);
-			const commandNames = existsSync(commandsPath)
-				? readdirSync(commandsPath)
-				: [];
+			const commandNames = existsSync(commandsPath) ? readdirSync(commandsPath) : [];
 
 			for (const commandName of commandNames) {
 				if (commandName.includes('.command')) {
 					const {
-						default: command,
+						default: command
 					}: {
 						default: typeof Command;
 					} = require(join(commandsPath, commandName));

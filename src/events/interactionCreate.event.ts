@@ -11,7 +11,7 @@ export default new ClientEvent({
 			if (command)
 				await command
 					.handleRun({
-						interaction,
+						interaction
 					})
 					.catch(async (error) => {
 						console.error(error);
@@ -19,9 +19,9 @@ export default new ClientEvent({
 						await interaction.followUp({
 							content: `An error ocurred while executing the command:\n\n${client.util.toCodeBlock(
 								'ts',
-								error.toString(),
+								error.toString()
 							)}`,
-							ephemeral: true,
+							ephemeral: true
 						});
 					});
 		} else {
@@ -40,11 +40,7 @@ export default new ClientEvent({
 						await interaction.message
 							?.fetch()
 							.catch(() => null)
-							.then(
-								(msg) =>
-									(commandName =
-										msg?.interaction?.commandName),
-							);
+							.then((msg) => (commandName = msg?.interaction?.commandName));
 
 					break;
 			}
@@ -54,7 +50,7 @@ export default new ClientEvent({
 			if (!commandName)
 				return console.error(
 					'[Interaction Handler] Unknown interaction type or no command name:',
-					InteractionType[interaction.type],
+					InteractionType[interaction.type]
 				);
 
 			const command = client.commands.get(commandName);
@@ -64,7 +60,7 @@ export default new ClientEvent({
 					'[Interaction Handler] Unknown command:',
 					commandName,
 					'Interaction type:',
-					InteractionType[interaction.type],
+					InteractionType[interaction.type]
 				);
 
 			let handler;
@@ -72,22 +68,22 @@ export default new ClientEvent({
 			switch (interaction.type) {
 				case InteractionType.ApplicationCommand:
 					handler = command.handleContextMenuInteraction?.({
-						interaction,
+						interaction
 					});
 					break;
 				case InteractionType.ApplicationCommandAutocomplete:
 					handler = command.handleAutocompleteInteraction?.({
-						interaction,
+						interaction
 					});
 					break;
 				case InteractionType.ModalSubmit:
 					handler = command.handleModalSubmitInteraction?.({
-						interaction,
+						interaction
 					});
 					break;
 				case InteractionType.MessageComponent:
 					handler = command.handleComponentInteraction?.({
-						interaction,
+						interaction
 					});
 					break;
 			}
@@ -100,16 +96,16 @@ export default new ClientEvent({
 					'\nInteraction Type:',
 					InteractionType[interaction.type],
 					'\nError:\n',
-					err,
+					err
 				);
 
 			await handler?.catch(interactionErrorHandler);
 
 			await command
 				.handleInteraction?.({
-					interaction,
+					interaction
 				})
 				.catch(interactionErrorHandler);
 		}
-	},
+	}
 });

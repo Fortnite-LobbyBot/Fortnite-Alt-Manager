@@ -8,9 +8,7 @@ export interface IClientEvent<Name extends keyof ClientEvents> {
 	run: (ctx: EventContext, ...args: ClientEvents[Name]) => Promise<unknown>;
 }
 
-export class ClientEvent<Name extends keyof ClientEvents>
-	implements IClientEvent<Name>
-{
+export class ClientEvent<Name extends keyof ClientEvents> implements IClientEvent<Name> {
 	name: Name;
 	once: boolean;
 

@@ -5,7 +5,7 @@ import type {
 	Interaction,
 	MessageContextMenuCommandInteraction,
 	ModalSubmitInteraction,
-	UserContextMenuCommandInteraction,
+	UserContextMenuCommandInteraction
 } from 'discord.js';
 
 export interface IHandleInteractionContext {
@@ -20,20 +20,15 @@ export class HandleInteractionContext implements IHandleInteractionContext {
 	}
 }
 
-export interface IHandleContextMenuInteractionContext
-	extends IHandleInteractionContext {
-	readonly interaction:
-		| MessageContextMenuCommandInteraction
-		| UserContextMenuCommandInteraction;
+export interface IHandleContextMenuInteractionContext extends IHandleInteractionContext {
+	readonly interaction: MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction;
 }
 
 export class HandleContextMenuInteractionContext
 	extends HandleInteractionContext
 	implements IHandleContextMenuInteractionContext
 {
-	public override readonly interaction:
-		| MessageContextMenuCommandInteraction
-		| UserContextMenuCommandInteraction;
+	public override readonly interaction: MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction;
 
 	constructor(ctx: IHandleContextMenuInteractionContext) {
 		super(ctx);
@@ -41,8 +36,7 @@ export class HandleContextMenuInteractionContext
 	}
 }
 
-export interface IHandleAutocompleteInteractionContext
-	extends IHandleInteractionContext {
+export interface IHandleAutocompleteInteractionContext extends IHandleInteractionContext {
 	readonly interaction: AutocompleteInteraction;
 }
 
@@ -58,8 +52,7 @@ export class HandleAutocompleteInteractionContext
 	}
 }
 
-export interface IHandleModalSubmitInteractionContext
-	extends IHandleInteractionContext {
+export interface IHandleModalSubmitInteractionContext extends IHandleInteractionContext {
 	readonly interaction: ModalSubmitInteraction;
 }
 
@@ -75,8 +68,7 @@ export class HandleModalSubmitInteractionContext
 	}
 }
 
-export interface IHandleComponentInteractionContext
-	extends IHandleInteractionContext {
+export interface IHandleComponentInteractionContext extends IHandleInteractionContext {
 	readonly interaction: AnySelectMenuInteraction | ButtonInteraction;
 }
 
@@ -84,9 +76,7 @@ export class HandleComponentInteractionContext
 	extends HandleInteractionContext
 	implements IHandleComponentInteractionContext
 {
-	public override readonly interaction:
-		| AnySelectMenuInteraction
-		| ButtonInteraction;
+	public override readonly interaction: AnySelectMenuInteraction | ButtonInteraction;
 
 	constructor(ctx: IHandleComponentInteractionContext) {
 		super(ctx);

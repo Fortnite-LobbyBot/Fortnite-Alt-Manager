@@ -26,8 +26,8 @@ const client = new BotClient({
 		ThreadManager: 0,
 		ThreadMemberManager: 0,
 		UserManager: 0,
-		VoiceStateManager: 0,
-	}),
+		VoiceStateManager: 0
+	})
 });
 
 client.setup();

@@ -7,7 +7,7 @@ import type {
 	HandleComponentInteractionContext,
 	HandleContextMenuInteractionContext,
 	HandleInteractionContext,
-	HandleModalSubmitInteractionContext,
+	HandleModalSubmitInteractionContext
 } from './HandleInteractionContext';
 
 export interface ICommand {
@@ -21,21 +21,13 @@ export interface ICommand {
 
 	handleRun(ctx: CommandHandleRunContext): Promise<any>;
 
-	handleAutocompleteInteraction?(
-		ctx: HandleAutocompleteInteractionContext,
-	): Promise<any>;
+	handleAutocompleteInteraction?(ctx: HandleAutocompleteInteractionContext): Promise<any>;
 
-	handleContextMenuInteraction?(
-		ctx: HandleContextMenuInteractionContext,
-	): Promise<any>;
+	handleContextMenuInteraction?(ctx: HandleContextMenuInteractionContext): Promise<any>;
 
-	handleModalSubmitInteraction?(
-		ctx: HandleModalSubmitInteractionContext,
-	): Promise<any>;
+	handleModalSubmitInteraction?(ctx: HandleModalSubmitInteractionContext): Promise<any>;
 
-	handleComponentInteraction?(
-		ctx: HandleComponentInteractionContext,
-	): Promise<any>;
+	handleComponentInteraction?(ctx: HandleComponentInteractionContext): Promise<any>;
 }
 
 export abstract class Command implements ICommand {
@@ -55,19 +47,11 @@ export abstract class Command implements ICommand {
 
 	public handleInteraction?(ctx: HandleInteractionContext): Promise<any>;
 
-	public handleAutocompleteInteraction?(
-		ctx: HandleAutocompleteInteractionContext,
-	): Promise<any>;
+	public handleAutocompleteInteraction?(ctx: HandleAutocompleteInteractionContext): Promise<any>;
 
-	public handleContextMenuInteraction?(
-		ctx: HandleContextMenuInteractionContext,
-	): Promise<any>;
+	public handleContextMenuInteraction?(ctx: HandleContextMenuInteractionContext): Promise<any>;
 
-	public handleModalSubmitInteraction?(
-		ctx: HandleModalSubmitInteractionContext,
-	): Promise<any>;
+	public handleModalSubmitInteraction?(ctx: HandleModalSubmitInteractionContext): Promise<any>;
 
-	public handleComponentInteraction?(
-		ctx: HandleComponentInteractionContext,
-	): Promise<any>;
+	public handleComponentInteraction?(ctx: HandleComponentInteractionContext): Promise<any>;
 }
