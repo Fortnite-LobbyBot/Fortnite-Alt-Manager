@@ -4,21 +4,21 @@ import {
 	ButtonStyle,
 	ComponentType,
 	EmbedBuilder,
-	SlashCommandBuilder,
+	SlashCommandBuilder
 } from 'discord.js';
-import { CommandMentions, Emojis } from '../constants';
-import { Command } from '../classes/Command';
-import { BotClient } from '../classes/BotClient';
-import type { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
 import { PaginationBuilder, PaginationManager } from 'pagination-manager';
-import { AltStatus, type Alt } from '../types/Alt';
+import { BotClient } from '../classes/BotClient';
+import { Command } from '../classes/Command';
+import type { CommandHandleRunContext } from '../classes/CommandHandleRunContext';
+import { CommandMentions, Emojis } from '../constants';
+import { type Alt, AltStatus } from '../types/Alt';
 
 enum CustomId {
 	FirstPage = '0',
 	PrevPage = '1',
 	Reload = '2',
 	NextPage = '3',
-	LastPage = '4',
+	LastPage = '4'
 }
 
 export default class AltsCommand extends Command {
@@ -32,25 +32,16 @@ export default class AltsCommand extends Command {
 				.addBooleanOption((o) =>
 					o
 						.setName('global')
-						.setDescription(
-							'Display global alts, not only the ones on this server',
-						)
-						.setRequired(false),
+						.setDescription('Display global alts, not only the ones on this server')
+						.setRequired(false)
 				)
 				.addBooleanOption((o) =>
-					o
-						.setName('ephemeral')
-						.setDescription('Only display the command for you')
-						.setRequired(false),
-				),
+					o.setName('ephemeral').setDescription('Only display the command for you').setRequired(false)
+				)
 		};
 	}
 
-	public static getAlts(
-		client: BotClient,
-		currentGuildId: string | null,
-		isGlobal: boolean,
-	) {
+	public static getAlts(client: BotClient, currentGuildId: string | null, isGlobal: boolean) {
 		const finalAlts: Alt[] = [];
 
 		const guildAlts: Alt[] = client.alts.get(currentGuildId) ?? [];
@@ -58,8 +49,7 @@ export default class AltsCommand extends Command {
 		if (isGlobal) {
 			for (const [guildId, alts] of client.alts)
 				if (guildId !== currentGuildId)
-					for (const alt of alts)
-						if (!alt.private) finalAlts.push({ ...alt, guildId });
+					for (const alt of alts) if (!alt.private) finalAlts.push({ ...alt, guildId });
 
 			finalAlts.sort((a, b) => a.timestamp - b.timestamp);
 
@@ -76,28 +66,18 @@ export default class AltsCommand extends Command {
 
 		const currentGuildId = interaction.guildId;
 
-		const isGlobal =
-			interaction.options.getBoolean('global', false) ?? true;
+		const isGlobal = interaction.options.getBoolean('global', false) ?? true;
 
-		const ephemeral =
-			interaction.options.getBoolean('ephemeral', false) ?? false;
+		const ephemeral = interaction.options.getBoolean('ephemeral', false) ?? false;
 
 		let paginationManager: PaginationManager<Alt[]>;
 
 		const chunkSize = 5;
 
 		const registerPages = () => {
-			const finalAlts = AltsCommand.getAlts(
-				this.client,
-				currentGuildId,
-				isGlobal,
-			);
+			const finalAlts = AltsCommand.getAlts(this.client, currentGuildId, isGlobal);
 
-			const chunkedAlts = client.util.chunkArray(
-				finalAlts,
-				chunkSize,
-				true,
-			);
+			const chunkedAlts = client.util.chunkArray(finalAlts, chunkSize, true);
 
 			const pagesBuilder = new PaginationBuilder<Alt[]>()
 				.addPages(chunkedAlts)
@@ -120,29 +100,21 @@ export default class AltsCommand extends Command {
 
 				const isKnownGid = i !== 0 && lgId === gId;
 
-				const externalAuthString =
-					client.managers.altManager.getExternalAuths(alt, true);
+				const externalAuthString = client.managers.altManager.getExternalAuths(alt, true);
 
 				return {
 					name: `${
 						isKnownGid || !isGlobal
 							? ''
-							: `${Emojis.Blank}\n${
-									gId
-										? client.guilds.cache.get(gId) ??
-											'Unknown'
-										: 'No guild'
-								}\n\n`
-					}${
-						client.managers.altManager.getStatus(alt.status).emoji
-					} ${alt.name} - ${AltStatus[alt.status]}${
+							: `${Emojis.Blank}\n${gId ? client.guilds.cache.get(gId) ?? 'Unknown' : 'No guild'}\n\n`
+					}${client.managers.altManager.getStatus(alt.status).emoji} ${alt.name} - ${AltStatus[alt.status]}${
 						alt.private ? ` ${Emojis.Private}` : ''
 					}`,
 					value: `> ${Emojis.Timer} ${client.util.toRelativeTimestamp(
-						alt.timestamp,
+						alt.timestamp
 					)} - by ${isCurrentGuildId ? `<@${alt.userId}>` : client.util.toBold(`@${alt.discordUsername}`)}${externalAuthString ? `\n> ${externalAuthString}` : ''}${
 						i === currentPage.length - 1 ? `\n${Emojis.Blank}` : ''
-					}`,
+					}`
 				};
 			});
 
@@ -150,12 +122,10 @@ export default class AltsCommand extends Command {
 				.setColor(0x43b581)
 				.setAuthor({
 					iconURL: interaction.guild?.iconURL() ?? undefined,
-					name: 'Human Alts for Bot Lobbies',
+					name: 'Human Alts for Bot Lobbies'
 				})
 				.setDescription(
-					(!isGlobal &&
-						`${Emojis.Private} _Showing only alts of this server._\n${Emojis.Blank}`) ||
-						null,
+					(!isGlobal && `${Emojis.Private} _Showing only alts of this server._\n${Emojis.Blank}`) || null
 				)
 				.setFields(
 					fields.length
@@ -163,67 +133,54 @@ export default class AltsCommand extends Command {
 						: [
 								{
 									name: `${Emojis.User} No alts available right now`,
-									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.\n\n${Emojis.Question} Add your own alt with ${CommandMentions.PublishAlt}.`,
-								},
-							],
+									value: `Sorry, there are no alts available at this moment.\nPress the ${Emojis.Reload} button to try again and refresh the message.\n\n${Emojis.Question} Add your own alt with ${CommandMentions.PublishAlt}.`
+								}
+							]
 				)
 				.setFooter(
 					fields.length
 						? {
-								text: `Page ${
-									paginationManager.pageIndicator
-								} • ${
+								text: `Page ${paginationManager.pageIndicator} • ${
 									paginationManager.pagesSize * chunkSize +
-									paginationManager.getPage(
-										paginationManager.pagesSize,
-									)?.length
+									paginationManager.getPage(paginationManager.pagesSize)?.length
 								} Alts registered`,
-								iconURL: client.user?.avatarURL() ?? undefined,
+								iconURL: client.user?.avatarURL() ?? undefined
 							}
-						: null,
+						: null
 				)
 				.setTimestamp(fields.length ? Date.now() : null);
 		};
 
 		const getPageActionRow = (disableAll = false) => {
-			const actionRow =
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setCustomId(CustomId.FirstPage)
-						.setEmoji(client.util.getEmojiId(Emojis.First))
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(paginationManager.currentPageIndex === 0),
-					new ButtonBuilder()
-						.setCustomId(CustomId.PrevPage)
-						.setEmoji(client.util.getEmojiId(Emojis.Prev))
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(paginationManager.currentPageIndex === 0),
-					new ButtonBuilder()
-						.setCustomId(CustomId.Reload)
-						.setEmoji(client.util.getEmojiId(Emojis.Reload))
-						.setStyle(ButtonStyle.Secondary),
-					new ButtonBuilder()
-						.setCustomId(CustomId.NextPage)
-						.setEmoji(client.util.getEmojiId(Emojis.Next))
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(
-							paginationManager.currentPageIndex ===
-								paginationManager.pagesSize,
-						),
-					new ButtonBuilder()
-						.setCustomId(CustomId.LastPage)
-						.setEmoji(client.util.getEmojiId(Emojis.Last))
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(
-							paginationManager.currentPageIndex ===
-								paginationManager.pagesSize,
-						),
-				);
+			const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId(CustomId.FirstPage)
+					.setEmoji(client.util.getEmojiId(Emojis.First))
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(paginationManager.currentPageIndex === 0),
+				new ButtonBuilder()
+					.setCustomId(CustomId.PrevPage)
+					.setEmoji(client.util.getEmojiId(Emojis.Prev))
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(paginationManager.currentPageIndex === 0),
+				new ButtonBuilder()
+					.setCustomId(CustomId.Reload)
+					.setEmoji(client.util.getEmojiId(Emojis.Reload))
+					.setStyle(ButtonStyle.Secondary),
+				new ButtonBuilder()
+					.setCustomId(CustomId.NextPage)
+					.setEmoji(client.util.getEmojiId(Emojis.Next))
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(paginationManager.currentPageIndex === paginationManager.pagesSize),
+				new ButtonBuilder()
+					.setCustomId(CustomId.LastPage)
+					.setEmoji(client.util.getEmojiId(Emojis.Last))
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(paginationManager.currentPageIndex === paginationManager.pagesSize)
+			);
 
 			if (disableAll) {
-				const newComponents = actionRow.components.map(
-					(buttonBuilder) => buttonBuilder.setDisabled(true),
-				);
+				const newComponents = actionRow.components.map((buttonBuilder) => buttonBuilder.setDisabled(true));
 
 				actionRow.setComponents(newComponents);
 			}
@@ -235,13 +192,13 @@ export default class AltsCommand extends Command {
 			.reply({
 				embeds: [getPageEmbed()],
 				components: [getPageActionRow()],
-				ephemeral,
+				ephemeral
 			})
 			.catch(() => null);
 
 		const collector = inRes?.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 300000,
+			time: 300000
 		});
 
 		collector?.on('collect', async (i) => {
@@ -268,7 +225,7 @@ export default class AltsCommand extends Command {
 			await i
 				.editReply({
 					embeds: [getPageEmbed()],
-					components: [getPageActionRow()],
+					components: [getPageActionRow()]
 				})
 				.catch(() => null);
 		});
@@ -276,7 +233,7 @@ export default class AltsCommand extends Command {
 		collector?.on('end', async () => {
 			await interaction
 				.editReply({
-					components: [getPageActionRow(true)],
+					components: [getPageActionRow(true)]
 				})
 				.catch(() => null);
 		});

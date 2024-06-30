@@ -20,5 +20,5 @@ export enum AltStatus {
 	Online = 0,
 	Busy = 1,
 	Idle = 2,
-	Offline = 3,
+	Offline = 3
 }

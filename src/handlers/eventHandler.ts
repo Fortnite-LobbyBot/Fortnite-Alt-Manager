@@ -17,9 +17,9 @@ export class EventHandler {
 				await event
 					.run(
 						{
-							client: this.client,
+							client: this.client
 						},
-						...args,
+						...args
 					)
 					.catch((err) => console.error('Event failed:', err));
 			};

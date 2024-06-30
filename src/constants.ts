@@ -22,9 +22,9 @@ export enum Emojis {
 	Prev = '<:B:802506411807342624>',
 	Next = '<:F:802506455399792640>',
 	Last = '<:L:802506506464788541>',
-	Timer = '<:T:1209979193237184642>',
+	Timer = '<:T:1209979193237184642>'
 }
 
 export enum CommandMentions {
-	PublishAlt = '</publish-alt-volunteer:1211036834134491166>',
+	PublishAlt = '</publish-alt-volunteer:1211036834134491166>'
 }
