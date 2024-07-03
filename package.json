@@ -1,31 +1,31 @@
 {
-	"name": "alt-manager",
-	"version": "1.0.1",
-	"description": "BL Alt Manager",
-	"scripts": {
-		"build": "bun run build:bundle",
-		"build:bundle": "bun build --target bun --format esm --minify --outdir ./dist/ ./src/index.ts",
-		"start": "NODE_ENV=production bun src/index.ts",
-		"dev": "NODE_ENV=development bun src/index.ts",
-		"pretty": "bunx prettier . --write",
-		"lint": "bun run lint:biome && bun run lint:tsc",
-		"lint:biome": "bunx --bun @biomejs/biome check --write .",
-		"lint:tsc": "bun tsc --noEmit"
-	},
-	"main": "index.js",
-	"author": "tnfAngel",
-	"license": "ISC",
-	"dependencies": {
-		"discord.js": "^14.15.3",
-		"ky": "^1.4.0",
-		"pagination-manager": "^1.0.6",
-		"tslib": "^2.6.3"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^1.8.3",
-		"@types/bun": "^1.1.6",
-		"prettier": "^3.3.2",
-		"typescript": "^5.5.2"
-	},
-	"trustedDependencies": ["@biomejs/biome"]
+  "name": "alt-manager",
+  "version": "1.0.1",
+  "description": "BL Alt Manager",
+  "scripts": {
+    "build": "bun run build:bundle",
+    "build:bundle": "bun build --target bun --format esm --minify --outdir ./dist/ ./src/index.ts",
+    "start": "NODE_ENV=production bun src/index.ts",
+    "dev": "NODE_ENV=development bun src/index.ts",
+    "pretty": "bunx prettier . --write",
+    "lint": "bun run lint:biome && bun run lint:tsc",
+    "lint:biome": "bunx --bun @biomejs/biome check --write .",
+    "lint:tsc": "bun tsc --noEmit"
+  },
+  "main": "index.js",
+  "author": "tnfAngel",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "ky": "^1.4.0",
+    "pagination-manager": "^1.0.6",
+    "tslib": "^2.6.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
+    "@types/bun": "^1.1.6",
+    "prettier": "^3.3.2",
+    "typescript": "^5.5.2"
+  },
+  "trustedDependencies": ["@biomejs/biome"]
 }
