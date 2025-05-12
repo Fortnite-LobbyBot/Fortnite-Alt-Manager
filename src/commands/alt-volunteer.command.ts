@@ -88,18 +88,13 @@ export default class PublishAltCommand extends Command {
 		await interaction.deferReply({ ephemeral: true });
 
 		const user = await ky
-			.get(`https://egs.jaren.wtf/api/accounts/displayName/${encodeURIComponent(userDisplayName)}`)
+			.post(`https://fiasco.fnlb.net/account/lookup`, {query: userDisplayName})
 			.json<APIAccount>()
 			.catch(() => null);
 
 		if (!user)
 			return interaction.editReply({
 				content: 'Invalid alt name provided. Please try again with the Epic Games name of your alt.'
-			});
-
-		if (user?.accountStatus !== 'ACTIVE')
-			return interaction.editReply({
-				content: 'The account you provided is disabled or deleted.'
 			});
 
 		const epicUserId = user.id;
