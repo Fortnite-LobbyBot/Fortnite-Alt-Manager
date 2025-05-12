@@ -88,7 +88,7 @@ export default class PublishAltCommand extends Command {
 		await interaction.deferReply({ ephemeral: true });
 
 		const user = await ky
-			.post(`https://fiasco.fnlb.net/account/lookup`, {query: userDisplayName})
+			.post(`https://fiasco.fnlb.net/account/lookup`, { json: { query: userDisplayName } })
 			.json<APIAccount>()
 			.catch(() => null);
 
