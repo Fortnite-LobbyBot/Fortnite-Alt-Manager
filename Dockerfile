@@ -1,5 +1,5 @@
 # Builder
-FROM docker.io/imbios/bun-node:1.1-21-alpine
+FROM docker.io/oven/bun:alpine
 WORKDIR /bot/
 
 COPY . ./
