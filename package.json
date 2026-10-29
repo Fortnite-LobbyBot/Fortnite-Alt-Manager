@@ -22,7 +22,7 @@
 		"tslib": "^2.6.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.8.3",
+		"@biomejs/biome": "^2.0.0",
 		"@types/bun": "^1.1.6",
 		"prettier": "^3.3.2",
 		"typescript": "^5.5.2"
